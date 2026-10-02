@@ -15,6 +15,7 @@
   /* Typography — populated at runtime by next/font/google variables */
   --font-display: var(--font-cormorant), Georgia, "Times New Roman", serif;
   --font-body: var(--font-jost), system-ui, -apple-system, sans-serif;
+  --font-script: var(--font-caveat), "Caveat", cursive;
 
   /* Extra-small breakpoint for very narrow phones (iPhone SE, 375px) */
   --breakpoint-xs: 390px;
@@ -111,3 +112,65 @@ select.rsvp-input {
   background-position: right 0.875rem center;
   padding-right: 2.5rem;
 }
+
+/* Washi tape strip */
+.washi-tape {
+  position: absolute;
+  top: -0.75rem;
+  left: 50%;
+  transform: translateX(-50%) rotate(-1deg);
+  width: 6.5rem;
+  height: 1.5rem;
+  background-color: rgba(245, 238, 228, 0.82);
+  backdrop-filter: blur(1.5px);
+  box-shadow: 0 1px 3px rgba(43, 29, 20, 0.09);
+  border-left: 1px solid rgba(255, 255, 255, 0.6);
+  border-right: 1px solid rgba(255, 255, 255, 0.6);
+  pointer-events: none;
+  user-select: none;
+  z-index: 20;
+}
+
+/* Polaroid card */
+.polaroid-card {
+  background-color: #ffffff;
+  padding: 0.875rem;
+  box-shadow: 0 10px 30px rgba(43, 29, 20, 0.07), 0 2px 6px rgba(43, 29, 20, 0.03);
+  border: 1px solid rgba(43, 29, 20, 0.06);
+  position: relative;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+/* Hide scrollbar for gallery horizontal reel */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* Continuous Right-to-Left Exhibition Marquee */
+@keyframes marquee-rtl {
+  0% {
+    transform: translate3d(0, 0, 0);
+  }
+  100% {
+    transform: translate3d(-50%, 0, 0);
+  }
+}
+
+.gallery-marquee {
+  display: flex !important;
+  flex-direction: row !important;
+  flex-wrap: nowrap !important;
+  width: max-content !important;
+  animation: marquee-rtl 50s linear infinite;
+  will-change: transform;
+}
+
+.gallery-marquee:hover,
+.gallery-marquee.is-paused {
+  animation-play-state: paused;
+}
+

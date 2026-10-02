@@ -33,7 +33,7 @@ export const TIMELINE = [
     number: 1,
     heading: "We met",
     description:
-      "[ A short description of how Justin and Jesulayomi first crossed paths. ]",
+      "[ A short description of how Jesulayomi and Justin first crossed paths. ]",
   },
   {
     number: 2,
@@ -76,3 +76,8 @@ export const DRESS_CODE = {
   gentlemen:
     "[ Smart and elegant — suits, agbadas, or native attire welcome. Draw from the brown, beige, and gold palette and come looking your best. ]",
 };
+
+// ── Shared Photo Album ─────────────────────────────────────────
+// Optional Google Drive, Google Photos, or Dropbox shared folder link
+export const SHARED_ALBUM_URL = "#";
+

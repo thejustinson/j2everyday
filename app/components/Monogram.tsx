@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 
 interface MonogramProps {
@@ -8,55 +9,50 @@ interface MonogramProps {
   className?: string;
 }
 
-const sizes = {
-  sm: { outer: "w-9 h-9", text: "text-base" },
-  md: { outer: "w-12 h-12", text: "text-xl" },
-  lg: { outer: "w-20 h-20", text: "text-3xl" },
+const sizeConfig = {
+  sm: { width: 38, height: 38, className: "w-9 h-9" },
+  md: { width: 52, height: 52, className: "w-12 h-12 sm:w-13 sm:h-13" },
+  lg: { width: 96, height: 96, className: "w-20 h-20 sm:w-24 sm:h-24" },
 };
 
 /**
- * J² circular monogram badge.
- * Used in the nav (center), RSVP page header, and footer.
- * Plays on both names starting with J and the site name j2everyday.
+ * Official Jesulayomi & Justin wedding logo / emblem.
+ * Used in the navigation bar, RSVP page header, and footer.
  */
 export default function Monogram({
   size = "md",
   linkTo,
   className = "",
 }: MonogramProps) {
-  const { outer, text } = sizes[size];
+  const { width, height, className: sizeClass } = sizeConfig[size];
 
-  const badge = (
-    <span
-      className={`
-        inline-flex items-center justify-center rounded-full
-        border border-brown-deep
-        font-display italic text-brown-deep
-        select-none flex-shrink-0
-        ${outer} ${text} ${className}
-      `}
-      aria-label="J² monogram — Jesulayomi and Justin"
+  const content = (
+    <div
+      className={`relative inline-flex items-center justify-center flex-shrink-0 transition-transform duration-200 hover:scale-105 ${sizeClass} ${className}`}
+      aria-label="Jesulayomi & Justin Logo"
     >
-      J
-      <sup
-        style={{ fontSize: "0.52em", lineHeight: 1, verticalAlign: "super" }}
-      >
-        2
-      </sup>
-    </span>
+      <Image
+        src="/j2e-logo.png"
+        alt="Jesulayomi & Justin"
+        width={width}
+        height={height}
+        className="w-full h-full object-contain"
+        priority
+      />
+    </div>
   );
 
   if (linkTo) {
     return (
       <Link
         href={linkTo}
-        className="rounded-full focus-visible:outline-2 focus-visible:outline-gold-accent focus-visible:outline-offset-3"
+        className="inline-flex rounded-full focus-visible:outline-2 focus-visible:outline-gold-accent focus-visible:outline-offset-3"
         aria-label="j2everyday home"
       >
-        {badge}
+        {content}
       </Link>
     );
   }
 
-  return badge;
+  return content;
 }

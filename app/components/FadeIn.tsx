@@ -1,61 +1,64 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { motion, useReducedMotion } from "motion/react";
+import React from "react";
 
 interface FadeInProps {
   children: React.ReactNode;
   className?: string;
   /** Optional delay in milliseconds before the transition begins */
   delay?: number;
+  /** Direction to slide from */
+  direction?: "up" | "down" | "left" | "right" | "none";
 }
 
 /**
- * Scroll-reveal wrapper.
- * Fades children from opacity-0/translate-y-4 to visible once
- * the element enters the viewport. Respects prefers-reduced-motion —
- * if the user prefers reduced motion, children are immediately visible.
+ * Framer Motion scroll-reveal wrapper.
+ * Smoothly animates children into view as they scroll into the viewport.
+ * Automatically respects user's prefers-reduced-motion setting.
  */
 export default function FadeIn({
   children,
   className = "",
   delay = 0,
+  direction = "up",
 }: FadeInProps) {
-  const ref = useRef<HTMLDivElement>(null);
-  const [isVisible, setIsVisible] = useState(false);
+  const shouldReduceMotion = useReducedMotion();
 
-  useEffect(() => {
-    // Respect prefers-reduced-motion — skip animation entirely
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
-      setIsVisible(true);
-      return;
+  const getInitialPosition = () => {
+    if (shouldReduceMotion || direction === "none") return { x: 0, y: 0 };
+    switch (direction) {
+      case "up":
+        return { x: 0, y: 24 };
+      case "down":
+        return { x: 0, y: -24 };
+      case "left":
+        return { x: 24, y: 0 };
+      case "right":
+        return { x: -24, y: 0 };
+      default:
+        return { x: 0, y: 24 };
     }
+  };
 
-    const el = ref.current;
-    if (!el) return;
-
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          setIsVisible(true);
-          observer.unobserve(el);
-        }
-      },
-      { threshold: 0.08, rootMargin: "0px 0px -32px 0px" },
-    );
-
-    observer.observe(el);
-    return () => observer.disconnect();
-  }, []);
+  const initial = {
+    opacity: 0,
+    ...getInitialPosition(),
+  };
 
   return (
-    <div
-      ref={ref}
-      className={`transition-all duration-700 ease-out ${
-        isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
-      } ${className}`}
-      style={delay ? { transitionDelay: `${delay}ms` } : undefined}
+    <motion.div
+      initial={shouldReduceMotion ? { opacity: 0 } : initial}
+      whileInView={{ opacity: 1, x: 0, y: 0 }}
+      viewport={{ once: true, margin: "-40px" }}
+      transition={{
+        duration: shouldReduceMotion ? 0.3 : 0.7,
+        delay: delay / 1000,
+        ease: [0.22, 1, 0.36, 1],
+      }}
+      className={className}
     >
       {children}
-    </div>
+    </motion.div>
   );
 }

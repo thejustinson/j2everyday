@@ -13,10 +13,10 @@ export default function Footer() {
           November 7, 2026 &nbsp;&middot;&nbsp; #j2everyday
         </p>
         <Link
-          href="/rsvp"
-          className="mt-2 font-body text-xs text-gold-accent hover:text-brown-deep transition-colors duration-200 tracking-wide"
+          href="/upload"
+          className="mt-1 font-body text-xs text-gold-accent hover:text-brown-deep transition-colors duration-200 tracking-[0.16em] uppercase font-medium"
         >
-          RSVP →
+          Share Your Photos &rarr;
         </Link>
       </div>
     </footer>

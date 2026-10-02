@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
-import { Cormorant_Garamond, Jost } from "next/font/google";
+import { Cormorant_Garamond, Jost, Caveat } from "next/font/google";
 import "./globals.css";
 
-// Display font — Cormorant Garamond (italic headings, monogram)
+// Display font — Cormorant Garamond (headings, monogram)
 const cormorant = Cormorant_Garamond({
   weight: ["400", "500", "600"],
   style: ["normal", "italic"],
@@ -16,6 +16,14 @@ const jost = Jost({
   weight: ["300", "400", "500", "600"],
   subsets: ["latin"],
   variable: "--font-jost",
+  display: "swap",
+});
+
+// Handwriting script font — Caveat (editorial handwritten titles, signatures)
+const caveat = Caveat({
+  weight: ["400", "500", "600", "700"],
+  subsets: ["latin"],
+  variable: "--font-caveat",
   display: "swap",
 });
 
@@ -40,7 +48,7 @@ export default function RootLayout({
     <html
       lang="en"
       data-scroll-behavior="smooth"
-      className={`${cormorant.variable} ${jost.variable}`}
+      className={`${cormorant.variable} ${jost.variable} ${caveat.variable}`}
     >
       <body className="min-h-screen">{children}</body>
     </html>
