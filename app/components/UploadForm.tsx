@@ -1,12 +1,12 @@
 "use client";
 
 import { useState, useRef, useEffect, type ChangeEvent, type FormEvent } from "react";
-import Image from "next/image";
 import Link from "next/link";
 import { motion, AnimatePresence } from "motion/react";
 import Monogram from "./Monogram";
 import FadeIn from "./FadeIn";
 import { SHARED_ALBUM_URL } from "../lib/config";
+import { useUploadThing } from "../lib/uploadthing";
 
 interface UploadedMemory {
   id: string;
@@ -25,8 +25,6 @@ const MOMENT_TAGS = [
   "Everyday Moments",
 ];
 
-const STORAGE_KEY = "j2e_guest_memories";
-
 export default function UploadForm() {
   const [files, setFiles] = useState<File[]>([]);
   const [previews, setPreviews] = useState<string[]>([]);
@@ -36,21 +34,109 @@ export default function UploadForm() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [isDragOver, setIsDragOver] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
+  const [errorMessage, setErrorMessage] = useState("");
   const [savedMemories, setSavedMemories] = useState<UploadedMemory[]>([]);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // Load previously saved client memories from localStorage
-  useEffect(() => {
+  // Load approved memories from the database
+  const loadApprovedMemories = async () => {
     try {
-      const data = localStorage.getItem(STORAGE_KEY);
-      if (data) {
-        setSavedMemories(JSON.parse(data));
+      const res = await fetch("/api/photos");
+      if (res.ok) {
+        const data = await res.json();
+        if (Array.isArray(data.photos)) {
+          interface ApiPhoto {
+            id: number;
+            url: string;
+            uploader_name: string;
+            chapter: string;
+            note: string;
+            created_at: string;
+          }
+          setSavedMemories(
+            data.photos.map((p: ApiPhoto) => ({
+              id: String(p.id),
+              url: p.url,
+              guestName: p.uploader_name,
+              tag: p.chapter || "Moment",
+              note: p.note || "",
+              date: new Date(p.created_at).toLocaleDateString("en-US", {
+                month: "short",
+                day: "numeric",
+              }),
+            }))
+          );
+        }
       }
-    } catch {
-      // Fallback silently if localStorage is restricted
+    } catch (err) {
+      console.warn("Could not load community memories:", err);
     }
+  };
+
+  useEffect(() => {
+    loadApprovedMemories();
   }, []);
+
+  // UploadThing hook
+  const { startUpload } = useUploadThing("guestPhotoUploader", {
+    onUploadProgress: (p) => {
+      setUploadProgress(p);
+    },
+    onClientUploadComplete: async (res) => {
+      try {
+        if (!res || res.length === 0) {
+          throw new Error("No files uploaded");
+        }
+
+        const photosPayload = res.map((item) => ({
+          url: item.ufsUrl || item.url,
+          key: item.key,
+        }));
+
+        const saveRes = await fetch("/api/photos", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            photos: photosPayload,
+            guestName: guestName.trim() || "A Loved Guest",
+            chapter: selectedTag,
+            note: note.trim(),
+          }),
+        });
+
+        if (!saveRes.ok) {
+          throw new Error("Failed to save photos to database");
+        }
+
+        setIsSubmitted(true);
+        setFiles([]);
+        setPreviews([]);
+        setNote("");
+        setUploadProgress(0);
+        // Refresh community list
+        loadApprovedMemories();
+      } catch (err) {
+        console.error("Error in onClientUploadComplete:", err);
+        setErrorMessage(
+          err instanceof Error
+            ? err.message
+            : "Files uploaded, but failed to save guest notes. Please let the couple know!"
+        );
+      } finally {
+        setIsSubmitting(false);
+      }
+    },
+    onUploadError: (error: Error) => {
+      console.error("Upload error:", error);
+      setErrorMessage(
+        error.message || "Upload failed. Please try again with smaller files."
+      );
+      setIsSubmitting(false);
+      setUploadProgress(0);
+    },
+  });
 
   // Generate image previews when files change
   const handleFileSelection = (newFiles: FileList | null) => {
@@ -79,57 +165,29 @@ export default function UploadForm() {
     handleFileSelection(e.dataTransfer.files);
   };
 
-  const handleSubmit = (e: FormEvent) => {
+  const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     if (files.length === 0) return;
 
+    setErrorMessage("");
     setIsSubmitting(true);
+    setUploadProgress(0);
 
-    // Simulate upload processing
-    setTimeout(() => {
-      const newItems: UploadedMemory[] = previews.map((url, idx) => ({
-        id: `${Date.now()}-${idx}`,
-        url,
-        guestName: guestName.trim() || "A Loved Guest",
-        tag: selectedTag,
-        note: note.trim(),
-        date: new Date().toLocaleDateString("en-US", {
-          month: "short",
-          day: "numeric",
-        }),
-      }));
-
-      const updated = [...newItems, ...savedMemories];
-      setSavedMemories(updated);
-
-      try {
-        // Store lightweight metadata in localStorage
-        localStorage.setItem(
-          STORAGE_KEY,
-          JSON.stringify(
-            updated.map((m) => ({
-              ...m,
-              // Keep only first preview for storage limit safety
-              url: m.url.startsWith("blob:") ? "/1.jpg" : m.url,
-            }))
-          )
-        );
-      } catch {
-        // Handled silently
-      }
-
+    try {
+      await startUpload(files);
+    } catch (err) {
+      console.error("Submit error:", err);
+      setErrorMessage("Could not start upload. Please check your connection.");
       setIsSubmitting(false);
-      setIsSubmitted(true);
-      setFiles([]);
-      setPreviews([]);
-      setNote("");
-    }, 1200);
+    }
   };
 
   const resetForm = () => {
     setIsSubmitted(false);
     setFiles([]);
     setPreviews([]);
+    setErrorMessage("");
+    setUploadProgress(0);
   };
 
   return (
@@ -257,14 +315,12 @@ export default function UploadForm() {
                           key={i}
                           className="relative aspect-square rounded-lg overflow-hidden border border-brown-deep/15 group shadow-xs bg-cream-light"
                         >
-                          {/* Image Preview */}
                           <img
                             src={src}
                             alt={`Upload preview ${i + 1}`}
                             className="w-full h-full object-cover"
                           />
 
-                          {/* Remove Button */}
                           <button
                             type="button"
                             onClick={(e) => {
@@ -359,13 +415,35 @@ export default function UploadForm() {
                   />
                 </div>
 
+                {/* Progress Bar & Error Messages */}
+                {isSubmitting && (
+                  <div className="space-y-2">
+                    <div className="flex justify-between font-body text-xs text-ink/70">
+                      <span>Uploading to wedding album...</span>
+                      <span>{uploadProgress}%</span>
+                    </div>
+                    <div className="w-full h-2 bg-cream-light rounded-full overflow-hidden border border-brown-deep/10">
+                      <div
+                        className="h-full bg-gold-accent transition-all duration-300"
+                        style={{ width: `${uploadProgress}%` }}
+                      />
+                    </div>
+                  </div>
+                )}
+
+                {errorMessage && (
+                  <div className="p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 font-body text-xs">
+                    {errorMessage}
+                  </div>
+                )}
+
                 {/* 5. Submit Button */}
                 <div className="pt-2">
                   <motion.button
                     type="submit"
                     disabled={isSubmitting || files.length === 0}
-                    whileHover={{ scale: files.length > 0 ? 1.01 : 1 }}
-                    whileTap={{ scale: files.length > 0 ? 0.98 : 1 }}
+                    whileHover={{ scale: files.length > 0 && !isSubmitting ? 1.01 : 1 }}
+                    whileTap={{ scale: files.length > 0 && !isSubmitting ? 0.98 : 1 }}
                     className={`
                       w-full py-4 rounded-lg font-body text-xs tracking-[0.22em] uppercase font-semibold
                       transition-all duration-200 flex items-center justify-center gap-2 shadow-sm
@@ -399,7 +477,7 @@ export default function UploadForm() {
                             d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
                           />
                         </svg>
-                        <span>Uploading Moments...</span>
+                        <span>Uploading {files.length} Photo{files.length > 1 ? "s" : ""} ({uploadProgress}%)...</span>
                       </>
                     ) : (
                       <span>
@@ -442,8 +520,11 @@ export default function UploadForm() {
               <h2 className="font-display italic text-3xl sm:text-4xl text-brown-deep mb-3">
                 Memories Received!
               </h2>
-              <p className="font-body text-ink/75 text-sm sm:text-base max-w-md mx-auto leading-relaxed mb-8">
-                Thank you so much{guestName ? `, ${guestName}` : ""}! Your photos have been added to our wedding collection. We can&apos;t wait to look back at every snapshot.
+              <p className="font-body text-ink/75 text-sm sm:text-base max-w-md mx-auto leading-relaxed mb-4">
+                Thank you so much{guestName ? `, ${guestName}` : ""}! Your photos have been uploaded successfully.
+              </p>
+              <p className="font-body text-xs text-ink/60 max-w-sm mx-auto mb-8 bg-beige-warm/15 py-2.5 px-4 rounded-full border border-brown-deep/10">
+                To keep our album joyful and safe, photos will appear in the community gallery once approved by the couple.
               </p>
 
               <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
