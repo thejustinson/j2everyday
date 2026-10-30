@@ -21,11 +21,20 @@ export const VENUE = {
 };
 
 // ── Bank Account Details ───────────────────────────────────────
-export const ACCOUNT = {
-  name: "J2E.Clique",
-  number: "8697099640",
-  bank: "PocketApp",
-};
+export const ACCOUNTS = [
+  {
+    label: "Groom",
+    name: "Nwachukwu Chikaodinaka",
+    number: "7022805459",
+    bank: "PocketApp",
+  },
+  {
+    label: "Bride",
+    name: "Eunice Jesulayomi Ibironke",
+    number: "7381892897",
+    bank: "PocketApp",
+  },
+];
 
 // ── Our Story Timeline ─────────────────────────────────────────
 export const TIMELINE = [

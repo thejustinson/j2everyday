@@ -4,15 +4,15 @@ import { useState } from "react";
 import Image from "next/image";
 import { motion, AnimatePresence } from "motion/react";
 import FadeIn from "./FadeIn";
-import { ACCOUNT, GIFTS } from "../lib/config";
+import { ACCOUNTS, GIFTS } from "../lib/config";
 
 export default function Gift() {
-  const [copied, setCopied] = useState(false);
+  const [copiedIndex, setCopiedIndex] = useState<number | null>(null);
 
-  const handleCopy = () => {
-    navigator.clipboard.writeText(ACCOUNT.number);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2500);
+  const handleCopy = (number: string, index: number) => {
+    navigator.clipboard.writeText(number);
+    setCopiedIndex(index);
+    setTimeout(() => setCopiedIndex(null), 2500);
   };
 
   return (
@@ -86,104 +86,79 @@ export default function Gift() {
                 ))}
               </ul>
 
-              {/* Account Card with 1-click Copy */}
-
-              <div className="w-full max-w-md bg-white border border-brown-deep/15 rounded-xl p-5 sm:p-6 shadow-sm">
-                <div className="flex items-center justify-between pb-4 border-b border-brown-deep/8">
-                  <div>
-                    <span className="font-body text-[0.65rem] tracking-[0.2em] uppercase text-gold-accent font-semibold block mb-0.5">
-                      Bank Name
-                    </span>
-                    <p className="font-body font-medium text-brown-deep text-base">
-                      {ACCOUNT.bank}
-                    </p>
-                  </div>
-                  <div className="text-right">
-                    <span className="font-body text-[0.65rem] tracking-[0.2em] uppercase text-gold-accent font-semibold block mb-0.5">
-                      Account Name
-                    </span>
-                    <p className="font-body font-medium text-brown-deep text-sm sm:text-base">
-                      {ACCOUNT.name}
-                    </p>
-                  </div>
-                </div>
-
-                <div className="flex items-center justify-between pt-4">
-                  <div>
-                    <span className="font-body text-[0.65rem] tracking-[0.2em] uppercase text-gold-accent font-semibold block mb-0.5">
-                      Account Number
-                    </span>
-                    <p className="font-display text-2xl sm:text-3xl text-brown-deep font-semibold tracking-wider tabular-nums">
-                      {ACCOUNT.number}
-                    </p>
-                  </div>
-
-                  <motion.button
-                    type="button"
-                    onClick={handleCopy}
-                    whileHover={{ scale: 1.03 }}
-                    whileTap={{ scale: 0.96 }}
-                    className="inline-flex items-center gap-2 px-4 py-2 bg-brown-deep hover:bg-brown-deep/90 text-cream-light rounded-lg font-body text-xs uppercase tracking-[0.16em] transition-colors duration-200 shadow-sm focus-visible:outline-2 focus-visible:outline-gold-accent"
-                    aria-label="Copy account number"
+              {/* Account Cards */}
+              <div className="flex flex-col gap-3 w-full max-w-md">
+                {ACCOUNTS.map((account, index) => (
+                  <div
+                    key={account.number}
+                    className="bg-white border border-brown-deep/15 rounded-xl p-5 shadow-sm"
                   >
-                    <AnimatePresence mode="wait">
-                      {copied ? (
-                        <motion.span
-                          key="copied"
-                          initial={{ opacity: 0, y: 4 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          exit={{ opacity: 0, y: -4 }}
-                          transition={{ duration: 0.15 }}
-                          className="inline-flex items-center gap-1.5"
-                        >
-                          <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            width="14"
-                            height="14"
-                            viewBox="0 0 24 24"
-                            fill="none"
-                            stroke="currentColor"
-                            strokeWidth="2.5"
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            aria-hidden="true"
-                          >
-                            <polyline points="20 6 9 17 4 12" />
-                          </svg>
-                          <span>Copied!</span>
-                        </motion.span>
-                      ) : (
-                        <motion.span
-                          key="copy"
-                          initial={{ opacity: 0, y: 4 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          exit={{ opacity: 0, y: -4 }}
-                          transition={{ duration: 0.15 }}
-                          className="inline-flex items-center gap-1.5"
-                        >
-                          <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            width="14"
-                            height="14"
-                            viewBox="0 0 24 24"
-                            fill="none"
-                            stroke="currentColor"
-                            strokeWidth="2"
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            aria-hidden="true"
-                          >
-                            <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
-                            <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
-                          </svg>
-                          <span>Copy</span>
-                        </motion.span>
-                      )}
-                    </AnimatePresence>
-                  </motion.button>
-                </div>
+                    <div className="flex items-center justify-between pb-3 border-b border-brown-deep/8 mb-3">
+                      <div>
+                        <span className="font-body text-[0.65rem] tracking-[0.2em] uppercase text-gold-accent font-semibold block mb-0.5">
+                          {account.label}
+                        </span>
+                        <p className="font-body font-medium text-brown-deep text-sm">
+                          {account.name}
+                        </p>
+                      </div>
+                      <span className="font-body text-[0.65rem] tracking-[0.2em] uppercase text-ink/40">
+                        {account.bank}
+                      </span>
+                    </div>
+
+                    <div className="flex items-center justify-between">
+                      <p className="font-display text-2xl text-brown-deep font-semibold tracking-wider tabular-nums">
+                        {account.number}
+                      </p>
+
+                      <motion.button
+                        type="button"
+                        onClick={() => handleCopy(account.number, index)}
+                        whileHover={{ scale: 1.03 }}
+                        whileTap={{ scale: 0.96 }}
+                        className="inline-flex items-center gap-2 px-4 py-2 bg-brown-deep hover:bg-brown-deep/90 text-cream-light rounded-lg font-body text-xs uppercase tracking-[0.16em] transition-colors duration-200 shadow-sm focus-visible:outline-2 focus-visible:outline-gold-accent"
+                        aria-label={`Copy ${account.label} account number`}
+                      >
+                        <AnimatePresence mode="wait">
+                          {copiedIndex === index ? (
+                            <motion.span
+                              key="copied"
+                              initial={{ opacity: 0, y: 4 }}
+                              animate={{ opacity: 1, y: 0 }}
+                              exit={{ opacity: 0, y: -4 }}
+                              transition={{ duration: 0.15 }}
+                              className="inline-flex items-center gap-1.5"
+                            >
+                              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                                <polyline points="20 6 9 17 4 12" />
+                              </svg>
+                              <span>Copied!</span>
+                            </motion.span>
+                          ) : (
+                            <motion.span
+                              key="copy"
+                              initial={{ opacity: 0, y: 4 }}
+                              animate={{ opacity: 1, y: 0 }}
+                              exit={{ opacity: 0, y: -4 }}
+                              transition={{ duration: 0.15 }}
+                              className="inline-flex items-center gap-1.5"
+                            >
+                              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                                <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
+                                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
+                              </svg>
+                              <span>Copy</span>
+                            </motion.span>
+                          )}
+                        </AnimatePresence>
+                      </motion.button>
+                    </div>
+                  </div>
+                ))}
               </div>
             </FadeIn>
+
           </div>
         </div>
       </div>
