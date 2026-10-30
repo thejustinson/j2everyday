@@ -77,6 +77,34 @@ export const DRESS_CODE = {
     "[ Smart and elegant — suits, agbadas, or native attire welcome. Draw from the brown, beige, and gold palette and come looking your best. ]",
 };
 
+// ── Gift Wishlist ───────────────────────────────────────────────
+export const GIFTS = [
+  {
+    title: "Hisense 5kg Twin Tub Washing Machine",
+    description: "Manual wash & spin — perfect for our new home.",
+    url: "https://www.jumia.com.ng/hisense-5kg-twin-tub-manual-washing-machine-wash-spin-503wspa-420526930.html",
+    emoji: "🫧",
+  },
+  {
+    title: "BROCOOK 10Pcs Granite Cookware Set",
+    description: "Non-stick die-cast set with glass lids.",
+    url: "https://www.jumia.com.ng/brocook-10pcs-die-cast-non-stick-granite-cookware-set-with-glass-lids-418866135.html",
+    emoji: "🍳",
+  },
+  {
+    title: "12.5 kg Gas Cylinder + Table-Top Burner",
+    description: "Cepsa cylinder with regulator, hose & clip included.",
+    url: "https://www.jumia.com.ng/cepsa-12.5kg-gas-cylinderstainless-cookerfree-regulator-hoseclip-b-420037467.html",
+    emoji: "🔥",
+  },
+  {
+    title: "Silver Crest 2L Blender",
+    description: "Food chopper blender, 15-speed, 2 mixing cups.",
+    url: "https://www.jumia.com.ng/silver-crest-2l-food-chopper-blender-with-2-mixing-cups-3-modes-15-adjustable-speeds-durable-420317241.html",
+    emoji: "🥤",
+  },
+];
+
 // ── Shared Photo Album ─────────────────────────────────────────
 // Optional Google Drive, Google Photos, or Dropbox shared folder link
 export const SHARED_ALBUM_URL = "#";

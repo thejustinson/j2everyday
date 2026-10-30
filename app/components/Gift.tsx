@@ -4,7 +4,7 @@ import { useState } from "react";
 import Image from "next/image";
 import { motion, AnimatePresence } from "motion/react";
 import FadeIn from "./FadeIn";
-import { ACCOUNT } from "../lib/config";
+import { ACCOUNT, GIFTS } from "../lib/config";
 
 export default function Gift() {
   const [copied, setCopied] = useState(false);
@@ -61,11 +61,38 @@ export default function Gift() {
                 </h2>
               </div>
 
-              <p className="font-body text-sm sm:text-base text-ink/80 leading-relaxed mb-8 max-w-lg">
-                We are so grateful to have you as a part of our lives, and your presence at our wedding is the greatest gift of all. If you would like to celebrate this joyous occasion with a gift, our account details are below to make it easier for you.
+              <p className="font-body text-sm sm:text-base text-ink/80 leading-relaxed mb-6 max-w-lg">
+                We are so grateful to have you as a part of our lives, and your presence at our wedding is the greatest gift of all. If you would like to celebrate this joyous occasion with a gift, here are a few things we&apos;d love — or you can give via the account below.
               </p>
 
+              {/* Gift Wishlist */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-8 w-full max-w-md">
+                {GIFTS.map((gift) => (
+                  <motion.a
+                    key={gift.title}
+                    href={gift.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    whileHover={{ y: -3, scale: 1.02 }}
+                    transition={{ type: "spring", stiffness: 300, damping: 22 }}
+                    className="flex flex-col gap-1 bg-white border border-brown-deep/12 rounded-xl p-4 shadow-sm hover:shadow-md hover:border-gold-accent/40 transition-shadow duration-200 group"
+                  >
+                    <span className="text-2xl leading-none mb-1">{gift.emoji}</span>
+                    <span className="font-body font-semibold text-brown-deep text-xs leading-snug group-hover:text-gold-accent transition-colors duration-150">
+                      {gift.title}
+                    </span>
+                    <span className="font-body text-[0.68rem] text-ink/55 leading-snug">
+                      {gift.description}
+                    </span>
+                    <span className="font-body text-[0.6rem] tracking-[0.15em] uppercase text-gold-accent/70 mt-1">
+                      View on Jumia →
+                    </span>
+                  </motion.a>
+                ))}
+              </div>
+
               {/* Account Card with 1-click Copy */}
+
               <div className="w-full max-w-md bg-white border border-brown-deep/15 rounded-xl p-5 sm:p-6 shadow-sm">
                 <div className="flex items-center justify-between pb-4 border-b border-brown-deep/8">
                   <div>

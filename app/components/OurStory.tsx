@@ -7,15 +7,15 @@ import { TIMELINE } from "../lib/config";
 
 const CHAPTER_PHOTOS = [
   {
-    src: "/9.jpg",
+    src: "/we-met.jpg",
     alt: "Jesulayomi and Justin smiling together in casual matching outfits",
   },
   {
-    src: "/4.jpg",
+    src: "/the-proposal.jpg",
     alt: "Close-up portrait highlighting the engagement ring",
   },
   {
-    src: "/2.jpg",
+    src: "/the-introduction.jpg",
     alt: "Jesulayomi and Justin in ceremonial celebration attire",
   },
 ];
@@ -82,9 +82,6 @@ export default function OurStory() {
                 <h3 className="font-display text-xl sm:text-2xl text-cream-light mb-2">
                   {item.heading}
                 </h3>
-                <p className="font-body text-beige-warm/70 text-sm leading-relaxed">
-                  {item.description}
-                </p>
               </FadeIn>
             );
           })}
