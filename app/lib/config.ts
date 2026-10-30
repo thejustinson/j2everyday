@@ -89,28 +89,32 @@ export const DRESS_CODE = {
 // ── Gift Wishlist ───────────────────────────────────────────────
 export const GIFTS = [
   {
+    id: "hisense-washing-machine",
     title: "Hisense 5kg Twin Tub Washing Machine",
+    price: "₦175,000",
     description: "Manual wash & spin — perfect for our new home.",
     url: "https://www.jumia.com.ng/hisense-5kg-twin-tub-manual-washing-machine-wash-spin-503wspa-420526930.html",
-    emoji: "🫧",
   },
   {
+    id: "brocook-cookware",
     title: "BROCOOK 10Pcs Granite Cookware Set",
+    price: "₦75,000",
     description: "Non-stick die-cast set with glass lids.",
     url: "https://www.jumia.com.ng/brocook-10pcs-die-cast-non-stick-granite-cookware-set-with-glass-lids-418866135.html",
-    emoji: "🍳",
   },
   {
+    id: "gas-cylinder-burner",
     title: "12.5 kg Gas Cylinder + Table-Top Burner",
+    price: "₦78,000",
     description: "Cepsa cylinder with regulator, hose & clip included.",
     url: "https://www.jumia.com.ng/cepsa-12.5kg-gas-cylinderstainless-cookerfree-regulator-hoseclip-b-420037467.html",
-    emoji: "🔥",
   },
   {
+    id: "silver-crest-blender",
     title: "Silver Crest 2L Blender",
+    price: "₦25,900",
     description: "Food chopper blender, 15-speed, 2 mixing cups.",
     url: "https://www.jumia.com.ng/silver-crest-2l-food-chopper-blender-with-2-mixing-cups-3-modes-15-adjustable-speeds-durable-420317241.html",
-    emoji: "🥤",
   },
 ];
 
