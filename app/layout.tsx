@@ -28,6 +28,9 @@ const caveat = Caveat({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL(
+    process.env.NEXT_PUBLIC_SITE_URL || "https://j2everyday.vercel.app"
+  ),
   title: "j2everyday — Jesulayomi & Justin",
   description:
     "Join Jesulayomi & Justin as they celebrate their wedding on November 7, 2026.",
@@ -41,6 +44,21 @@ export const metadata: Metadata = {
     description:
       "Join Jesulayomi & Justin as they celebrate their wedding on November 7, 2026.",
     type: "website",
+    images: [
+      {
+        url: "/og-image.png",
+        width: 1200,
+        height: 630,
+        alt: "Jesulayomi & Justin — November 7, 2026 #j2everyday",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "j2everyday — Jesulayomi & Justin",
+    description:
+      "Join Jesulayomi & Justin as they celebrate their wedding on November 7, 2026.",
+    images: ["/og-image.png"],
   },
 };
 
