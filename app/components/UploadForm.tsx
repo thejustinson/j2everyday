@@ -211,9 +211,19 @@ export default function UploadForm() {
           </span>
         </div>
 
-        <span className="font-body text-[0.68rem] tracking-[0.25em] uppercase text-ink/40">
-          #j2everyday
-        </span>
+        <div className="flex items-center gap-4">
+          <Link
+            href="/guestbook"
+            className="font-body text-[0.68rem] sm:text-xs tracking-[0.16em] uppercase font-semibold text-brown-deep border border-brown-deep/20 hover:border-gold-accent hover:text-gold-accent px-3 py-1.5 rounded-full transition-colors flex items-center gap-1.5"
+          >
+            <span>📖</span>
+            <span className="hidden sm:inline">Guestbook Album</span>
+            <span className="sm:hidden">Album</span>
+          </Link>
+          <span className="font-body text-[0.68rem] tracking-[0.25em] uppercase text-ink/40 hidden md:inline">
+            #j2everyday
+          </span>
+        </div>
       </div>
 
       <div className="max-w-3xl mx-auto">
@@ -527,17 +537,23 @@ export default function UploadForm() {
                 To keep our album joyful and safe, photos will appear in the community gallery once approved by the couple.
               </p>
 
-              <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+              <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
                 <button
                   type="button"
                   onClick={resetForm}
-                  className="font-body text-xs tracking-[0.2em] uppercase font-semibold text-cream-light bg-brown-deep px-6 py-3 rounded-lg hover:bg-brown-deep/90 transition-colors shadow-xs cursor-pointer"
+                  className="font-body text-xs tracking-[0.2em] uppercase font-semibold text-cream-light bg-brown-deep px-5 py-3 rounded-lg hover:bg-brown-deep/90 transition-colors shadow-xs cursor-pointer"
                 >
                   Upload More Photos
                 </button>
                 <Link
+                  href="/guestbook"
+                  className="font-body text-xs tracking-[0.2em] uppercase font-semibold text-brown-deep bg-beige-warm/30 border border-brown-deep/20 px-5 py-3 rounded-lg hover:bg-beige-warm/50 transition-colors"
+                >
+                  View Guestbook Album &rarr;
+                </Link>
+                <Link
                   href="/"
-                  className="font-body text-xs tracking-[0.2em] uppercase font-medium text-brown-deep border border-brown-deep/20 px-6 py-3 rounded-lg hover:bg-cream-light transition-colors"
+                  className="font-body text-xs tracking-[0.2em] uppercase font-medium text-ink/60 hover:text-brown-deep px-4 py-3 transition-colors"
                 >
                   Return to Home
                 </Link>
@@ -566,13 +582,22 @@ export default function UploadForm() {
         {/* ── Community Guest Feed ── */}
         {savedMemories.length > 0 && (
           <FadeIn delay={200} className="mt-16 sm:mt-24 pt-12 border-t border-brown-deep/10">
-            <div className="text-center mb-8">
-              <span className="font-body text-[0.68rem] tracking-[0.28em] uppercase text-gold-accent font-semibold block mb-1">
-                [COMMUNITY FEED]
-              </span>
-              <h3 className="font-display italic text-2xl sm:text-3xl text-brown-deep">
-                Moments Captured by Our Guests
-              </h3>
+            <div className="flex flex-col sm:flex-row items-center justify-between mb-8 pb-4 border-b border-brown-deep/8 gap-4 text-center sm:text-left">
+              <div>
+                <span className="font-body text-[0.68rem] tracking-[0.28em] uppercase text-gold-accent font-semibold block mb-1">
+                  [COMMUNITY FEED]
+                </span>
+                <h3 className="font-display italic text-2xl sm:text-3xl text-brown-deep">
+                  Moments Captured by Our Guests
+                </h3>
+              </div>
+              <Link
+                href="/guestbook"
+                className="font-body text-xs tracking-[0.18em] uppercase font-semibold text-brown-deep hover:text-gold-accent transition-colors flex items-center gap-1.5 border border-brown-deep/20 hover:border-gold-accent px-4 py-1.5 rounded-full bg-white shadow-2xs"
+              >
+                <span>Full Guestbook Album</span>
+                <span>&rarr;</span>
+              </Link>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">

@@ -284,6 +284,15 @@ export default function Gallery() {
             <span>{isPaused ? "Resume Flow" : "Pause Flow"}</span>
           </button>
 
+          {/* Guestbook Link */}
+          <Link
+            href="/guestbook"
+            className="font-body text-[0.65rem] tracking-[0.2em] uppercase text-brown-deep hover:text-gold-accent hover:bg-brown-deep/5 transition-all border border-brown-deep/25 px-3.5 py-1 rounded-full flex items-center gap-1.5 font-medium cursor-pointer"
+          >
+            <span>📖</span>
+            <span>Guestbook Album</span>
+          </Link>
+
           {/* Upload Photos Link */}
           <Link
             href="/upload"

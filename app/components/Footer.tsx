@@ -12,12 +12,21 @@ export default function Footer() {
         <p className="font-body text-ink/40 text-xs tracking-[0.25em] uppercase">
           November 7, 2026 &nbsp;&middot;&nbsp; #j2everyday
         </p>
-        <Link
-          href="/upload"
-          className="mt-1 font-body text-xs text-gold-accent hover:text-brown-deep transition-colors duration-200 tracking-[0.16em] uppercase font-medium"
-        >
-          Share Your Photos &rarr;
-        </Link>
+        <div className="flex items-center justify-center gap-4 sm:gap-6 mt-1 flex-wrap">
+          <Link
+            href="/guestbook"
+            className="font-body text-xs text-brown-deep hover:text-gold-accent transition-colors duration-200 tracking-[0.16em] uppercase font-medium"
+          >
+            Guestbook Album &rarr;
+          </Link>
+          <span className="text-brown-deep/20 select-none">&middot;</span>
+          <Link
+            href="/upload"
+            className="font-body text-xs text-gold-accent hover:text-brown-deep transition-colors duration-200 tracking-[0.16em] uppercase font-medium"
+          >
+            Share Your Photos &rarr;
+          </Link>
+        </div>
       </div>
     </footer>
   );

@@ -14,6 +14,7 @@ const NAV_ITEMS: NavItem[] = [
   { id: "our-story", href: "/#our-story", label: "OUR STORY" },
   { id: "schedule", href: "/#schedule", label: "SCHEDULE" },
   { id: "gallery", href: "/#gallery", label: "GALLERY" },
+  { id: "guestbook", href: "/guestbook", label: "GUESTBOOK" },
   { id: "gift", href: "/#gift", label: "GIFTS" },
 ];
 
