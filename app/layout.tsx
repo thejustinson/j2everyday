@@ -31,6 +31,11 @@ export const metadata: Metadata = {
   title: "j2everyday — Jesulayomi & Justin",
   description:
     "Join Jesulayomi & Justin as they celebrate their wedding on November 7, 2026.",
+  icons: {
+    icon: "/favicon.png",
+    shortcut: "/favicon.png",
+    apple: "/favicon.png",
+  },
   openGraph: {
     title: "j2everyday — Jesulayomi & Justin",
     description:
