@@ -160,62 +160,50 @@ export default function Gift() {
                 Your presence at our wedding is the greatest gift of all. If you would like to bless us with a wedding gift, here are items we would truly love for our new home — you can claim one so others know it is covered, or give via the bank accounts below.
               </p>
 
-              {/* ── Gift Wishlist Items ── */}
-              <div className="mb-10 w-full max-w-md flex flex-col gap-3">
-                <span className="font-body text-[0.68rem] tracking-[0.22em] uppercase text-gold-accent font-semibold block mb-1">
-                  [HOME WISHLIST &middot; REAL-TIME REGISTRY]
-                </span>
-
+              {/* Gift Wishlist */}
+              <ul className="mb-8 w-full max-w-md divide-y divide-brown-deep/8">
                 {GIFTS.map((gift) => {
                   const claim = claims[gift.id];
                   const isClaimed = Boolean(claim);
 
                   return (
-                    <div
+                    <li
                       key={gift.id}
-                      className={`p-4 rounded-xl border transition-all ${
-                        isClaimed
-                          ? "bg-stone-50/80 border-brown-deep/10 opacity-80"
-                          : "bg-white border-brown-deep/15 shadow-2xs hover:border-gold-accent/50"
-                      }`}
+                      className="py-3 flex items-center justify-between gap-3 group"
                     >
-                      {/* Top Row: Title + Price */}
-                      <div className="flex items-start justify-between gap-3 mb-1">
-                        <span
-                          className={`font-body font-medium text-sm leading-snug ${
-                            isClaimed ? "text-ink/60 line-through" : "text-brown-deep"
-                          }`}
-                        >
-                          {gift.title}
-                        </span>
-                        <span className="font-display font-semibold text-base sm:text-lg text-brown-deep tabular-nums whitespace-nowrap">
-                          {gift.price}
-                        </span>
+                      <div className="flex flex-col min-w-0 pr-2">
+                        <div className="flex items-baseline gap-2 flex-wrap">
+                          <span
+                            className={`font-body text-sm leading-snug transition-colors duration-150 ${
+                              isClaimed
+                                ? "text-ink/40 line-through"
+                                : "text-ink/80 group-hover:text-brown-deep"
+                            }`}
+                          >
+                            {gift.title}
+                          </span>
+                          <span className="font-display font-semibold text-xs sm:text-sm text-gold-accent tabular-nums whitespace-nowrap">
+                            {gift.price}
+                          </span>
+                        </div>
+                        {isClaimed && (
+                          <span className="font-body text-[0.62rem] text-emerald-800 tracking-wider uppercase font-medium mt-0.5">
+                            ✓ Claimed by {claim.claimed_by}
+                          </span>
+                        )}
                       </div>
 
-                      {/* Description */}
-                      <p className="font-body text-xs text-ink/60 leading-snug mb-3">
-                        {gift.description}
-                      </p>
-
-                      {/* Action Row */}
-                      <div className="flex items-center justify-between pt-2 border-t border-brown-deep/8 gap-2">
+                      <div className="flex items-center gap-2.5 flex-shrink-0">
                         <a
                           href={gift.url}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="font-body text-[0.68rem] tracking-wider uppercase text-gold-accent hover:text-brown-deep transition-colors flex items-center gap-1 font-medium"
+                          className="font-body text-[0.6rem] tracking-[0.15em] uppercase text-gold-accent/70 hover:text-brown-deep whitespace-nowrap transition-colors duration-150"
                         >
-                          <span>View on Jumia</span>
-                          <span className="text-xs">&rarr;</span>
+                          View →
                         </a>
 
-                        {isClaimed ? (
-                          <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 border border-emerald-600/20 text-emerald-800 text-[0.68rem] font-body tracking-wider uppercase font-semibold">
-                            <span>✓</span>
-                            <span>Claimed by {claim.claimed_by}</span>
-                          </div>
-                        ) : (
+                        {!isClaimed ? (
                           <button
                             type="button"
                             onClick={() => {
@@ -224,21 +212,20 @@ export default function Gift() {
                               setClaimerName("");
                               setClaimerNote("");
                             }}
-                            className="px-3.5 py-1 rounded-full bg-brown-deep hover:bg-brown-deep/90 text-cream-light font-body text-[0.68rem] tracking-[0.16em] uppercase font-semibold transition-all shadow-2xs cursor-pointer active:scale-95"
+                            className="font-body text-[0.6rem] tracking-[0.12em] uppercase text-brown-deep hover:text-gold-accent border border-brown-deep/20 hover:border-gold-accent px-2.5 py-0.5 rounded-full transition-colors cursor-pointer whitespace-nowrap active:scale-95"
                           >
                             I&apos;ve Got This
                           </button>
+                        ) : (
+                          <span className="font-body text-[0.58rem] tracking-[0.12em] uppercase text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-600/20 font-medium whitespace-nowrap select-none">
+                            Claimed
+                          </span>
                         )}
                       </div>
-                    </div>
+                    </li>
                   );
                 })}
-              </div>
-
-              {/* ── Cash Gift / Bank Accounts ── */}
-              <span className="font-body text-[0.68rem] tracking-[0.22em] uppercase text-gold-accent font-semibold block mb-3">
-                [DIRECT BANK TRANSFER]
-              </span>
+              </ul>
 
               <div className="flex flex-col gap-3 w-full max-w-md">
                 {ACCOUNTS.map((account, index) => (
