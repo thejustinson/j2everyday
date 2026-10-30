@@ -150,9 +150,9 @@ export default function Hero() {
                 <span className="block font-script text-2xl sm:text-3xl text-brown-deep -rotate-2">
                   Love,
                 </span>
-                <span className="block font-script text-3xl sm:text-4xl text-brown-deep font-semibold -rotate-1 mt-0.5">
+                <h1 className="block font-script text-3xl sm:text-4xl text-brown-deep font-semibold -rotate-1 mt-0.5">
                   Jesulayomi &amp; Justin
-                </span>
+                </h1>
               </div>
             </div>
           </motion.div>
