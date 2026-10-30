@@ -66,30 +66,25 @@ export default function Gift() {
               </p>
 
               {/* Gift Wishlist */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-8 w-full max-w-md">
+              <ul className="mb-8 w-full max-w-md divide-y divide-brown-deep/8">
                 {GIFTS.map((gift) => (
-                  <motion.a
-                    key={gift.title}
-                    href={gift.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    whileHover={{ y: -3, scale: 1.02 }}
-                    transition={{ type: "spring", stiffness: 300, damping: 22 }}
-                    className="flex flex-col gap-1 bg-white border border-brown-deep/12 rounded-xl p-4 shadow-sm hover:shadow-md hover:border-gold-accent/40 transition-shadow duration-200 group"
-                  >
-                    <span className="text-2xl leading-none mb-1">{gift.emoji}</span>
-                    <span className="font-body font-semibold text-brown-deep text-xs leading-snug group-hover:text-gold-accent transition-colors duration-150">
-                      {gift.title}
-                    </span>
-                    <span className="font-body text-[0.68rem] text-ink/55 leading-snug">
-                      {gift.description}
-                    </span>
-                    <span className="font-body text-[0.6rem] tracking-[0.15em] uppercase text-gold-accent/70 mt-1">
-                      View on Jumia →
-                    </span>
-                  </motion.a>
+                  <li key={gift.title}>
+                    <a
+                      href={gift.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center justify-between gap-4 py-3 group"
+                    >
+                      <span className="font-body text-sm text-ink/80 leading-snug group-hover:text-brown-deep transition-colors duration-150">
+                        {gift.title}
+                      </span>
+                      <span className="font-body text-[0.6rem] tracking-[0.15em] uppercase text-gold-accent/60 group-hover:text-gold-accent whitespace-nowrap transition-colors duration-150 flex-shrink-0">
+                        View →
+                      </span>
+                    </a>
+                  </li>
                 ))}
-              </div>
+              </ul>
 
               {/* Account Card with 1-click Copy */}
 
