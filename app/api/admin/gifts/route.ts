@@ -18,15 +18,22 @@ export async function GET(request: Request) {
   }
 
   try {
-    const claims = await sql`
-      SELECT id, gift_id, claimed_by, note, claimed_at
-      FROM gift_claims
-      ORDER BY claimed_at ASC
-    `;
+    const [claims, contributions] = await Promise.all([
+      sql`
+        SELECT id, gift_id, claimed_by, note, claimed_at
+        FROM gift_claims
+        ORDER BY claimed_at ASC
+      `,
+      sql`
+        SELECT id, gift_id, contributor_name, amount, note, created_at
+        FROM gift_contributions
+        ORDER BY created_at DESC
+      `,
+    ]);
 
-    return NextResponse.json({ claims });
+    return NextResponse.json({ claims, contributions });
   } catch (error) {
-    console.error("Error fetching admin gift claims:", error);
+    console.error("Error fetching admin gift data:", error);
     return NextResponse.json({ error: "Database error" }, { status: 500 });
   }
 }
@@ -38,20 +45,30 @@ export async function DELETE(request: Request) {
 
   try {
     const body = await request.json();
-    const { giftId } = body;
+    const { giftId, contributionId } = body;
 
-    if (!giftId) {
-      return NextResponse.json({ error: "Gift ID required" }, { status: 400 });
+    if (contributionId) {
+      await sql`
+        DELETE FROM gift_contributions
+        WHERE id = ${Number(contributionId)}
+      `;
+      return NextResponse.json({ success: true, message: "Contribution deleted" });
     }
 
-    await sql`
-      DELETE FROM gift_claims
-      WHERE gift_id = ${giftId}
-    `;
+    if (giftId) {
+      await sql`
+        DELETE FROM gift_claims
+        WHERE gift_id = ${giftId}
+      `;
+      return NextResponse.json({ success: true, message: "Gift claim released" });
+    }
 
-    return NextResponse.json({ success: true, message: "Gift claim released" });
+    return NextResponse.json(
+      { error: "Gift ID or Contribution ID required" },
+      { status: 400 }
+    );
   } catch (error) {
-    console.error("Error deleting gift claim:", error);
+    console.error("Error deleting gift claim or contribution:", error);
     return NextResponse.json({ error: "Database error" }, { status: 500 });
   }
 }

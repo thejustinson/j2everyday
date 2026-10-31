@@ -14,6 +14,20 @@ export default function Footer() {
         </p>
         <div className="flex items-center justify-center gap-4 sm:gap-6 mt-1 flex-wrap">
           <Link
+            href="/gifts"
+            className="font-body text-xs text-brown-deep hover:text-gold-accent transition-colors duration-200 tracking-[0.16em] uppercase font-medium"
+          >
+            Gift Registry &rarr;
+          </Link>
+          <span className="text-brown-deep/20 select-none">&middot;</span>
+          <Link
+            href="/messages"
+            className="font-body text-xs text-brown-deep hover:text-gold-accent transition-colors duration-200 tracking-[0.16em] uppercase font-medium"
+          >
+            Message Wall &rarr;
+          </Link>
+          <span className="text-brown-deep/20 select-none">&middot;</span>
+          <Link
             href="/guestbook"
             className="font-body text-xs text-brown-deep hover:text-gold-accent transition-colors duration-200 tracking-[0.16em] uppercase font-medium"
           >
@@ -24,7 +38,7 @@ export default function Footer() {
             href="/upload"
             className="font-body text-xs text-gold-accent hover:text-brown-deep transition-colors duration-200 tracking-[0.16em] uppercase font-medium"
           >
-            Share Your Photos &rarr;
+            Share Photos &rarr;
           </Link>
         </div>
       </div>

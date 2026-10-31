@@ -2,27 +2,21 @@
 
 import { useState, useEffect } from "react";
 import Image from "next/image";
+import Link from "next/link";
 import { motion, AnimatePresence } from "motion/react";
 import FadeIn from "./FadeIn";
-import { ACCOUNTS, GIFTS } from "../lib/config";
+import { ACCOUNTS, GIFTS, type GiftItemConfig } from "../lib/config";
 
 interface GiftClaim {
   claimed_by: string;
   note?: string;
 }
 
-interface GiftItem {
-  id: string;
-  title: string;
-  price: string;
-  description: string;
-  url: string;
-}
-
 export default function Gift() {
   const [copiedIndex, setCopiedIndex] = useState<number | null>(null);
   const [claims, setClaims] = useState<Record<string, GiftClaim>>({});
-  const [claimingGift, setClaimingGift] = useState<GiftItem | null>(null);
+  const [contributions, setContributions] = useState<Record<string, { total: number }>>({});
+  const [claimingGift, setClaimingGift] = useState<GiftItemConfig | null>(null);
   const [claimerName, setClaimerName] = useState("");
   const [claimerNote, setClaimerNote] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -41,6 +35,9 @@ export default function Gift() {
         const res = await fetch("/api/gifts");
         if (res.ok) {
           const data = await res.json();
+          if (data.contributions) {
+            setContributions(data.contributions);
+          }
           if (Array.isArray(data.claims)) {
             const map: Record<string, GiftClaim> = {};
             for (const c of data.claims) {
@@ -53,7 +50,7 @@ export default function Gift() {
           }
         }
       } catch (err) {
-        console.warn("Could not fetch gift claims:", err);
+        console.warn("Could not fetch gift data:", err);
       }
     }
     loadClaims();
@@ -161,10 +158,13 @@ export default function Gift() {
               </p>
 
               {/* Gift Wishlist */}
-              <ul className="mb-8 w-full max-w-md divide-y divide-brown-deep/8">
-                {GIFTS.map((gift) => {
+              <ul className="mb-6 w-full max-w-md divide-y divide-brown-deep/8">
+                {GIFTS.slice(0, 6).map((gift) => {
                   const claim = claims[gift.id];
-                  const isClaimed = Boolean(claim);
+                  const contrib = contributions[gift.id];
+                  const totalRaised = contrib ? contrib.total : (claim ? gift.targetAmount : 0);
+                  const isClaimed = Boolean(claim) || (gift.targetAmount > 0 && totalRaised >= gift.targetAmount);
+                  const isPartiallyFunded = !isClaimed && totalRaised > 0;
 
                   return (
                     <li
@@ -188,34 +188,35 @@ export default function Gift() {
                         </div>
                         {isClaimed && (
                           <span className="font-body text-[0.62rem] text-emerald-800 tracking-wider uppercase font-medium mt-0.5">
-                            ✓ Claimed by {claim.claimed_by}
+                            ✓ {claim ? `Claimed by ${claim.claimed_by}` : "Fully Funded"}
+                          </span>
+                        )}
+                        {isPartiallyFunded && (
+                          <span className="font-body text-[0.62rem] text-gold-accent tracking-wider uppercase font-medium mt-0.5">
+                            ₦{totalRaised.toLocaleString()} contributed
                           </span>
                         )}
                       </div>
 
                       <div className="flex items-center gap-2.5 flex-shrink-0">
-                        <a
-                          href={gift.url}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="font-body text-[0.6rem] tracking-[0.15em] uppercase text-gold-accent/70 hover:text-brown-deep whitespace-nowrap transition-colors duration-150"
-                        >
-                          View →
-                        </a>
+                        {gift.url && gift.url !== "#" && !gift.url.startsWith("/gifts") ? (
+                          <a
+                            href={gift.url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="font-body text-[0.6rem] tracking-[0.15em] uppercase text-gold-accent/70 hover:text-brown-deep whitespace-nowrap transition-colors duration-150"
+                          >
+                            View →
+                          </a>
+                        ) : null}
 
                         {!isClaimed ? (
-                          <button
-                            type="button"
-                            onClick={() => {
-                              setClaimingGift(gift);
-                              setClaimError("");
-                              setClaimerName("");
-                              setClaimerNote("");
-                            }}
+                          <Link
+                            href="/gifts"
                             className="font-body text-[0.6rem] tracking-[0.12em] uppercase text-brown-deep hover:text-gold-accent border border-brown-deep/20 hover:border-gold-accent px-2.5 py-0.5 rounded-full transition-colors cursor-pointer whitespace-nowrap active:scale-95"
                           >
-                            I&apos;ve Got This
-                          </button>
+                            Contribute
+                          </Link>
                         ) : (
                           <span className="font-body text-[0.58rem] tracking-[0.12em] uppercase text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-600/20 font-medium whitespace-nowrap select-none">
                             Claimed
@@ -226,6 +227,22 @@ export default function Gift() {
                   );
                 })}
               </ul>
+
+              {/* Full Registry and Message Wall CTA links */}
+              <div className="mb-8 w-full max-w-md flex flex-col sm:flex-row items-center gap-2.5">
+                <Link
+                  href="/gifts"
+                  className="w-full text-center py-2.5 px-4 rounded-xl bg-brown-deep hover:bg-brown-deep/90 text-cream-light font-body text-xs tracking-[0.16em] uppercase font-semibold transition-all shadow-xs"
+                >
+                  View Full Registry ({GIFTS.length} Items) &rarr;
+                </Link>
+                <Link
+                  href="/messages"
+                  className="w-full text-center py-2.5 px-4 rounded-xl bg-white hover:bg-cream-light text-brown-deep border border-brown-deep/20 font-body text-xs tracking-[0.14em] uppercase font-semibold transition-all shadow-2xs"
+                >
+                  🕊️ Message Wall &rarr;
+                </Link>
+              </div>
 
               <div className="flex flex-col gap-3 w-full max-w-md">
                 {ACCOUNTS.map((account, index) => (

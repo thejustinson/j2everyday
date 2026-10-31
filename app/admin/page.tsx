@@ -30,15 +30,36 @@ interface GiftClaimAdmin {
   claimed_at: string;
 }
 
+interface GiftContributionAdmin {
+  id: number;
+  gift_id: string;
+  contributor_name: string;
+  amount: number;
+  note: string | null;
+  created_at: string;
+}
+
+interface WallMessageAdmin {
+  id: number;
+  sender_name: string;
+  category: string;
+  message: string;
+  bible_reference: string | null;
+  is_approved: boolean;
+  created_at: string;
+}
+
 export default function AdminPage() {
   const [password, setPassword] = useState("");
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
   const [photos, setPhotos] = useState<PhotoItem[]>([]);
   const [giftClaims, setGiftClaims] = useState<GiftClaimAdmin[]>([]);
+  const [giftContributions, setGiftContributions] = useState<GiftContributionAdmin[]>([]);
+  const [messages, setMessages] = useState<WallMessageAdmin[]>([]);
   const [stats, setStats] = useState<Stats>({ total: 0, pending: 0, approved: 0 });
   const [isLoading, setIsLoading] = useState(false);
-  const [mainTab, setMainTab] = useState<"photos" | "gifts">("photos");
+  const [mainTab, setMainTab] = useState<"photos" | "gifts" | "messages">("photos");
   const [activeFilter, setActiveFilter] = useState<"all" | "pending" | "approved">("pending");
   const [processingId, setProcessingId] = useState<number | null>(null);
 
@@ -46,9 +67,10 @@ export default function AdminPage() {
     setIsLoading(true);
     setErrorMsg("");
     try {
-      const [photosRes, giftsRes] = await Promise.all([
+      const [photosRes, giftsRes, messagesRes] = await Promise.all([
         fetch("/api/admin/photos", { headers: { "x-admin-password": pwd } }),
         fetch("/api/admin/gifts", { headers: { "x-admin-password": pwd } }),
+        fetch("/api/admin/messages", { headers: { "x-admin-password": pwd } }),
       ]);
 
       if (!photosRes.ok) {
@@ -69,6 +91,12 @@ export default function AdminPage() {
       if (giftsRes.ok) {
         const giftsData = await giftsRes.json();
         setGiftClaims(giftsData.claims || []);
+        setGiftContributions(giftsData.contributions || []);
+      }
+
+      if (messagesRes.ok) {
+        const msgData = await messagesRes.json();
+        setMessages(msgData.messages || []);
       }
 
       setIsAuthenticated(true);
@@ -95,7 +123,7 @@ export default function AdminPage() {
     fetchDashboardData(password.trim());
   };
 
-  const toggleApproval = async (id: number, currentStatus: boolean) => {
+  const togglePhotoApproval = async (id: number, currentStatus: boolean) => {
     setProcessingId(id);
     try {
       const res = await fetch("/api/admin/photos", {
@@ -157,7 +185,12 @@ export default function AdminPage() {
   };
 
   const releaseGiftClaim = async (giftId: string, giftTitle: string) => {
-    if (!confirm(`Are you sure you want to release the claim on "${giftTitle}"? Other guests will be able to claim it again.`)) return;
+    if (
+      !confirm(
+        `Are you sure you want to release the claim on "${giftTitle}"? Other guests will be able to claim it again.`
+      )
+    )
+      return;
 
     try {
       const res = await fetch("/api/admin/gifts", {
@@ -177,6 +210,69 @@ export default function AdminPage() {
     }
   };
 
+  const deleteGiftContribution = async (contribId: number) => {
+    if (!confirm("Are you sure you want to remove this contribution record?")) return;
+
+    try {
+      const res = await fetch("/api/admin/gifts", {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+          "x-admin-password": password,
+        },
+        body: JSON.stringify({ contributionId: contribId }),
+      });
+
+      if (res.ok) {
+        setGiftContributions((prev) => prev.filter((c) => c.id !== contribId));
+      }
+    } catch {
+      alert("Failed to remove contribution.");
+    }
+  };
+
+  const toggleMessageApproval = async (id: number, currentStatus: boolean) => {
+    try {
+      const res = await fetch("/api/admin/messages", {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          "x-admin-password": password,
+        },
+        body: JSON.stringify({ id, is_approved: !currentStatus }),
+      });
+
+      if (res.ok) {
+        setMessages((prev) =>
+          prev.map((m) => (m.id === id ? { ...m, is_approved: !currentStatus } : m))
+        );
+      }
+    } catch {
+      alert("Failed to update message approval.");
+    }
+  };
+
+  const deleteMessage = async (id: number) => {
+    if (!confirm("Are you sure you want to delete this message?")) return;
+
+    try {
+      const res = await fetch("/api/admin/messages", {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+          "x-admin-password": password,
+        },
+        body: JSON.stringify({ id }),
+      });
+
+      if (res.ok) {
+        setMessages((prev) => prev.filter((m) => m.id !== id));
+      }
+    } catch {
+      alert("Failed to delete message.");
+    }
+  };
+
   const filteredPhotos = photos.filter((p) => {
     if (activeFilter === "pending") return !p.is_approved;
     if (activeFilter === "approved") return p.is_approved;
@@ -185,57 +281,67 @@ export default function AdminPage() {
 
   return (
     <div className="min-h-screen bg-cream-light py-10 sm:py-16 px-4 sm:px-6">
-      <div className="max-w-5xl mx-auto">
+      <div className="max-w-6xl mx-auto">
         {/* Top Header */}
-        <div className="flex items-center justify-between pb-6 border-b border-brown-deep/10 mb-8">
+        <div className="flex items-center justify-between pb-8 border-b border-brown-deep/10 mb-8">
           <Link
             href="/"
-            className="font-body text-xs tracking-[0.2em] uppercase text-brown-deep hover:text-gold-accent transition-colors"
+            className="group inline-flex items-center gap-2 font-body text-xs sm:text-sm tracking-[0.2em] uppercase text-brown-deep hover:text-gold-accent transition-colors"
           >
-            &larr; Back to Home
+            <span className="text-gold-accent transition-transform group-hover:-translate-x-1">
+              &larr;
+            </span>
+            <span>Back to Site</span>
           </Link>
 
-          <div className="text-center">
-            <span className="font-script text-2xl sm:text-3xl text-brown-deep block">
-              Jesulayomi &amp; Justin
-            </span>
-            <span className="font-body text-[0.62rem] tracking-[0.25em] uppercase text-gold-accent font-semibold">
-              Couple Dashboard &middot; Admin
-            </span>
-          </div>
+          <span className="font-display italic text-lg sm:text-xl text-brown-deep">
+            Jesulayomi &amp; Justin &middot; Admin
+          </span>
 
-          <Link
-            href="/upload"
-            className="font-body text-xs tracking-[0.18em] uppercase text-brown-deep hover:text-gold-accent transition-colors"
-          >
-            Upload Page &rarr;
-          </Link>
+          {isAuthenticated && (
+            <button
+              type="button"
+              onClick={() => {
+                sessionStorage.removeItem("j2e_admin_pwd");
+                setIsAuthenticated(false);
+                setPassword("");
+              }}
+              className="font-body text-xs tracking-wider uppercase text-ink/50 hover:text-brown-deep cursor-pointer"
+            >
+              Log out
+            </button>
+          )}
         </div>
 
-        {/* Auth Gate */}
+        {/* Login Gate */}
         {!isAuthenticated ? (
-          <div className="max-w-md mx-auto mt-12 bg-white border border-brown-deep/15 rounded-xl p-8 shadow-sm">
-            <h1 className="font-display italic text-2xl text-brown-deep mb-2 text-center">
-              Couple Admin Access
-            </h1>
-            <p className="font-body text-xs text-ink/65 text-center mb-6">
-              Enter the passcode to review guest photos and manage the wedding gift registry.
-            </p>
+          <div className="max-w-md mx-auto my-16 bg-white border border-brown-deep/15 rounded-2xl p-8 shadow-sm">
+            <div className="text-center mb-6">
+              <span className="font-body text-[0.68rem] tracking-[0.25em] uppercase text-gold-accent font-semibold block mb-1">
+                [COUPLE &middot; WEDDING ADMIN]
+              </span>
+              <h1 className="font-display italic text-3xl text-brown-deep">
+                Welcome, Lovers
+              </h1>
+              <p className="font-body text-xs text-ink/70 mt-1">
+                Enter your administrative passcode to review uploads, gift registry claims, and prayers.
+              </p>
+            </div>
 
             <form onSubmit={handleLogin} className="space-y-4">
               <div>
                 <input
                   type="password"
-                  required
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  placeholder="Enter admin passcode"
-                  className="rsvp-input text-center font-mono tracking-widest text-base"
+                  placeholder="Enter passcode..."
+                  className="rsvp-input text-center tracking-widest text-lg"
+                  autoFocus
                 />
               </div>
 
               {errorMsg && (
-                <p className="font-body text-xs text-red-600 text-center font-medium">
+                <p className="font-body text-xs text-red-600 bg-red-50 p-2.5 rounded-lg border border-red-200 text-center">
                   {errorMsg}
                 </p>
               )}
@@ -252,8 +358,8 @@ export default function AdminPage() {
         ) : (
           /* Moderation Dashboard */
           <div>
-            {/* Top Navigation Tabs: Photos vs Gifts */}
-            <div className="flex items-center justify-center gap-3 mb-8 select-none">
+            {/* Top Navigation Tabs */}
+            <div className="flex items-center justify-center flex-wrap gap-2.5 mb-8 select-none">
               <button
                 type="button"
                 onClick={() => setMainTab("photos")}
@@ -276,7 +382,21 @@ export default function AdminPage() {
               >
                 <span>Gift Registry</span>
                 <span className="text-[0.65rem] bg-gold-accent/20 px-2 py-0.5 rounded-full text-brown-deep">
-                  {giftClaims.length}/{GIFTS.length}
+                  {giftClaims.length + giftContributions.length}
+                </span>
+              </button>
+              <button
+                type="button"
+                onClick={() => setMainTab("messages")}
+                className={`px-5 py-2 rounded-full font-body text-xs tracking-wider uppercase font-semibold transition-all cursor-pointer flex items-center gap-1.5 ${
+                  mainTab === "messages"
+                    ? "bg-brown-deep text-cream-light shadow-xs"
+                    : "bg-white text-ink/70 border border-brown-deep/15 hover:border-gold-accent"
+                }`}
+              >
+                <span>Message Wall</span>
+                <span className="text-[0.65rem] bg-gold-accent/20 px-2 py-0.5 rounded-full text-brown-deep">
+                  {messages.length}
                 </span>
               </button>
             </div>
@@ -284,7 +404,6 @@ export default function AdminPage() {
             {/* TAB 1: GUEST PHOTOS */}
             {mainTab === "photos" && (
               <div>
-                {/* Stats Bar */}
                 <div className="grid grid-cols-3 gap-3 sm:gap-6 mb-8">
                   <div className="bg-white border border-brown-deep/12 rounded-xl p-4 sm:p-5 text-center">
                     <span className="font-body text-[0.65rem] tracking-[0.2em] uppercase text-ink/50 block mb-1">
@@ -304,9 +423,9 @@ export default function AdminPage() {
                     </span>
                   </div>
 
-                  <div className="bg-white border border-emerald-600/20 rounded-xl p-4 sm:p-5 text-center">
-                    <span className="font-body text-[0.65rem] tracking-[0.2em] uppercase text-emerald-700 block mb-1">
-                      Approved
+                  <div className="bg-white border border-brown-deep/12 rounded-xl p-4 sm:p-5 text-center">
+                    <span className="font-body text-[0.65rem] tracking-[0.2em] uppercase text-ink/50 block mb-1">
+                      Approved &amp; Live
                     </span>
                     <span className="font-display text-2xl sm:text-3xl font-semibold text-emerald-800">
                       {stats.approved}
@@ -315,206 +434,173 @@ export default function AdminPage() {
                 </div>
 
                 {/* Filter Pills */}
-                <div className="flex items-center justify-between flex-wrap gap-4 mb-8 pb-4 border-b border-brown-deep/8">
-                  <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 mb-6">
+                  {(["pending", "approved", "all"] as const).map((filter) => (
                     <button
+                      key={filter}
                       type="button"
-                      onClick={() => setActiveFilter("pending")}
-                      className={`px-4 py-1.5 rounded-full font-body text-xs transition-colors cursor-pointer ${
-                        activeFilter === "pending"
-                          ? "bg-gold-accent text-white font-medium shadow-xs"
-                          : "bg-white text-ink/70 border border-brown-deep/15 hover:border-gold-accent"
+                      onClick={() => setActiveFilter(filter)}
+                      className={`font-body text-xs tracking-wider uppercase px-4 py-1.5 rounded-full border transition-all cursor-pointer ${
+                        activeFilter === filter
+                          ? "bg-brown-deep text-cream-light border-brown-deep font-semibold"
+                          : "bg-white text-ink/70 border-brown-deep/15 hover:border-gold-accent"
                       }`}
                     >
-                      Pending ({stats.pending})
+                      {filter}
                     </button>
-                    <button
-                      type="button"
-                      onClick={() => setActiveFilter("approved")}
-                      className={`px-4 py-1.5 rounded-full font-body text-xs transition-colors cursor-pointer ${
-                        activeFilter === "approved"
-                          ? "bg-brown-deep text-cream-light font-medium shadow-xs"
-                          : "bg-white text-ink/70 border border-brown-deep/15 hover:border-brown-deep"
-                      }`}
-                    >
-                      Approved ({stats.approved})
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => setActiveFilter("all")}
-                      className={`px-4 py-1.5 rounded-full font-body text-xs transition-colors cursor-pointer ${
-                        activeFilter === "all"
-                          ? "bg-ink text-white font-medium shadow-xs"
-                          : "bg-white text-ink/70 border border-brown-deep/15 hover:border-ink"
-                      }`}
-                    >
-                      All ({stats.total})
-                    </button>
-                  </div>
-
-                  <button
-                    type="button"
-                    onClick={() => fetchDashboardData(password)}
-                    className="font-body text-xs text-ink/60 hover:text-brown-deep tracking-wider flex items-center gap-1.5 cursor-pointer"
-                  >
-                    <span>↻</span> Refresh List
-                  </button>
+                  ))}
                 </div>
 
-                {/* Photo Cards Grid */}
+                {/* Photos Grid */}
                 {filteredPhotos.length === 0 ? (
-                  <div className="text-center py-16 bg-white rounded-xl border border-brown-deep/10">
-                    <p className="font-display italic text-2xl text-brown-deep mb-1">
-                      {activeFilter === "pending"
-                        ? "All caught up! No pending photos."
-                        : "No photos found in this category."}
-                    </p>
-                    <p className="font-body text-xs text-ink/50">
-                      New guest uploads will appear here in real-time.
+                  <div className="bg-white border border-brown-deep/12 rounded-xl p-12 text-center">
+                    <p className="font-display italic text-xl text-brown-deep">
+                      No {activeFilter} photos found.
                     </p>
                   </div>
                 ) : (
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                    <AnimatePresence>
-                      {filteredPhotos.map((photo) => (
-                        <motion.div
-                          key={photo.id}
-                          layout
-                          initial={{ opacity: 0, scale: 0.96 }}
-                          animate={{ opacity: 1, scale: 1 }}
-                          exit={{ opacity: 0, scale: 0.9 }}
-                          className={`bg-white border rounded-xl overflow-hidden shadow-sm flex flex-col justify-between ${
-                            photo.is_approved
-                              ? "border-emerald-600/30"
-                              : "border-gold-accent/50 shadow-xs"
-                          }`}
-                        >
-                          {/* Media Image */}
-                          <div>
-                            <div className="relative aspect-[4/3] bg-brown-deep/5 overflow-hidden">
-                              {photo.url.match(/\.(mp4|webm|mov)$/i) ? (
-                                <video
-                                  src={photo.url}
-                                  controls
-                                  className="w-full h-full object-cover"
-                                />
-                              ) : (
-                                <a
-                                  href={photo.url}
-                                  target="_blank"
-                                  rel="noopener noreferrer"
-                                  className="block w-full h-full group"
-                                  title="Click to view full resolution"
-                                >
-                                  <img
-                                    src={photo.url}
-                                    alt={`Shared by ${photo.uploader_name}`}
-                                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                                  />
-                                </a>
-                              )}
+                    {filteredPhotos.map((photo) => (
+                      <div
+                        key={photo.id}
+                        className="bg-white border border-brown-deep/12 rounded-xl overflow-hidden shadow-xs flex flex-col justify-between"
+                      >
+                        <div className="relative aspect-[4/5] bg-stone-100 overflow-hidden">
+                          {photo.url.match(/\.(mp4|webm|mov)$/i) ? (
+                            <video
+                              src={photo.url}
+                              className="w-full h-full object-cover"
+                              controls
+                            />
+                          ) : (
+                            <img
+                              src={photo.url}
+                              alt={`Upload by ${photo.uploader_name}`}
+                              className="w-full h-full object-cover"
+                            />
+                          )}
+                        </div>
 
-                              {/* Status Badge */}
-                              <div className="absolute top-2 right-2">
-                                {photo.is_approved ? (
-                                  <span className="px-2.5 py-1 rounded-full text-[0.62rem] font-body uppercase tracking-wider font-semibold bg-emerald-700 text-white shadow-xs">
-                                    Approved &amp; Live
-                                  </span>
-                                ) : (
-                                  <span className="px-2.5 py-1 rounded-full text-[0.62rem] font-body uppercase tracking-wider font-semibold bg-gold-accent text-white shadow-xs">
-                                    Needs Approval
-                                  </span>
-                                )}
-                              </div>
+                        <div className="p-4 flex-1 flex flex-col justify-between">
+                          <div className="mb-3">
+                            <div className="flex items-center justify-between mb-1">
+                              <span className="font-display italic font-semibold text-brown-deep">
+                                {photo.uploader_name}
+                              </span>
+                              <span className="text-[0.62rem] tracking-wider uppercase text-gold-accent font-medium">
+                                {photo.chapter || "Moment"}
+                              </span>
                             </div>
-
-                            {/* Metadata */}
-                            <div className="p-4">
-                              <div className="flex items-center justify-between mb-1.5">
-                                <span className="font-display italic text-brown-deep font-semibold text-base truncate">
-                                  {photo.uploader_name}
-                                </span>
-                                <span className="font-body text-[0.62rem] tracking-wider uppercase text-gold-accent font-medium">
-                                  {photo.chapter || "Moment"}
-                                </span>
-                              </div>
-
-                              {photo.note && (
-                                <p className="font-body text-xs text-ink/75 italic line-clamp-3 mb-2 bg-cream-light/60 p-2 rounded-md">
-                                  &ldquo;{photo.note}&rdquo;
-                                </p>
-                              )}
-
-                              <p className="font-body text-[0.65rem] text-ink/40 tracking-wider">
-                                Uploaded on{" "}
-                                {new Date(photo.created_at).toLocaleDateString("en-US", {
-                                  month: "short",
-                                  day: "numeric",
-                                  hour: "numeric",
-                                  minute: "numeric",
-                                })}
+                            {photo.note && (
+                              <p className="font-body text-xs text-ink/75 italic line-clamp-2">
+                                &ldquo;{photo.note}&rdquo;
                               </p>
-                            </div>
+                            )}
                           </div>
 
-                          {/* Action Bar */}
-                          <div className="p-4 pt-0 border-t border-brown-deep/8 flex items-center justify-between gap-2 mt-2">
+                          <div className="flex items-center gap-2 pt-3 border-t border-brown-deep/8">
                             <button
                               type="button"
                               disabled={processingId === photo.id}
-                              onClick={() => toggleApproval(photo.id, photo.is_approved)}
-                              className={`flex-1 py-2 px-3 rounded-lg font-body text-xs uppercase tracking-wider font-semibold transition-colors cursor-pointer ${
+                              onClick={() => togglePhotoApproval(photo.id, photo.is_approved)}
+                              className={`flex-1 py-1.5 rounded text-xs font-body tracking-wider uppercase font-semibold transition-colors cursor-pointer ${
                                 photo.is_approved
-                                  ? "bg-amber-100 hover:bg-amber-200 text-amber-900"
-                                  : "bg-emerald-700 hover:bg-emerald-800 text-white shadow-xs"
+                                  ? "bg-stone-100 text-ink/70 hover:bg-stone-200"
+                                  : "bg-emerald-700 text-white hover:bg-emerald-800"
                               }`}
                             >
-                              {processingId === photo.id
-                                ? "Updating..."
-                                : photo.is_approved
-                                ? "Revoke Approval"
-                                : "✓ Approve & Publish"}
+                              {photo.is_approved ? "Unapprove" : "Approve"}
                             </button>
-
                             <button
                               type="button"
                               disabled={processingId === photo.id}
                               onClick={() => deletePhoto(photo.id)}
-                              className="py-2 px-3 rounded-lg font-body text-xs uppercase tracking-wider text-red-600 hover:bg-red-50 transition-colors border border-red-200 cursor-pointer"
-                              title="Delete photo"
+                              className="px-3 py-1.5 rounded text-xs font-body tracking-wider uppercase text-red-600 border border-red-200 hover:bg-red-50 cursor-pointer"
                             >
                               Delete
                             </button>
                           </div>
-                        </motion.div>
-                      ))}
-                    </AnimatePresence>
+                        </div>
+                      </div>
+                    ))}
                   </div>
                 )}
               </div>
             )}
 
-            {/* TAB 2: GIFT REGISTRY */}
+            {/* TAB 2: GIFT REGISTRY & CONTRIBUTIONS */}
             {mainTab === "gifts" && (
-              <div className="space-y-4">
+              <div>
                 <div className="bg-white border border-brown-deep/12 rounded-xl p-5 mb-6">
                   <h2 className="font-display italic text-2xl text-brown-deep mb-1">
-                    Wedding Gift Wishlist Status
+                    Wedding Gift Wishlist &amp; Contributions
                   </h2>
                   <p className="font-body text-xs text-ink/65">
-                    Real-time status of items claimed by wedding guests. If an item was claimed by mistake, you can release the claim below so others can view and purchase it.
+                    Real-time status of full claims and crowdfunding contributions made by guests.
                   </p>
                 </div>
+
+                {/* Recent Contributions Activity */}
+                {giftContributions.length > 0 && (
+                  <div className="mb-8 bg-white border border-gold-accent/30 rounded-xl p-5 shadow-2xs">
+                    <h3 className="font-body text-xs tracking-[0.2em] uppercase font-semibold text-gold-accent mb-3">
+                      [RECENT GUEST CONTRIBUTIONS ({giftContributions.length})]
+                    </h3>
+                    <div className="divide-y divide-brown-deep/8">
+                      {giftContributions.map((contrib) => {
+                        const gift = GIFTS.find((g) => g.id === contrib.gift_id);
+                        return (
+                          <div
+                            key={contrib.id}
+                            className="py-2.5 flex items-center justify-between text-xs gap-3"
+                          >
+                            <div>
+                              <p className="font-medium text-brown-deep">
+                                {contrib.contributor_name} gave{" "}
+                                <span className="text-emerald-700 font-semibold tabular-nums">
+                                  ₦{Number(contrib.amount).toLocaleString()}
+                                </span>{" "}
+                                towards <em>{gift ? gift.title : contrib.gift_id}</em>
+                              </p>
+                              {contrib.note && (
+                                <p className="italic text-ink/70 mt-0.5">
+                                  &ldquo;{contrib.note}&rdquo;
+                                </p>
+                              )}
+                            </div>
+                            <button
+                              type="button"
+                              onClick={() => deleteGiftContribution(contrib.id)}
+                              className="text-[0.62rem] tracking-wider uppercase text-red-600 hover:text-red-800 border border-red-200 px-2 py-0.5 rounded cursor-pointer"
+                            >
+                              Remove
+                            </button>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   {GIFTS.map((gift) => {
                     const claim = giftClaims.find((c) => c.gift_id === gift.id);
+                    const contribs = giftContributions.filter((c) => c.gift_id === gift.id);
+                    const totalContributed = contribs.reduce(
+                      (sum, c) => sum + Number(c.amount),
+                      0
+                    );
+                    const isFullyFunded =
+                      Boolean(claim) ||
+                      (gift.targetAmount > 0 && totalContributed >= gift.targetAmount);
 
                     return (
                       <div
                         key={gift.id}
                         className={`bg-white border rounded-xl p-5 shadow-xs flex flex-col justify-between ${
-                          claim ? "border-emerald-600/40 bg-emerald-50/20" : "border-brown-deep/15"
+                          isFullyFunded
+                            ? "border-emerald-600/40 bg-emerald-50/20"
+                            : "border-brown-deep/15"
                         }`}
                       >
                         <div>
@@ -531,45 +617,64 @@ export default function AdminPage() {
                             {gift.description}
                           </p>
 
+                          {/* Progress summary */}
+                          <div className="mb-3 p-2.5 bg-cream-light/70 rounded-lg text-xs space-y-1">
+                            <div className="flex justify-between font-body text-[0.68rem] text-brown-deep font-semibold">
+                              <span>
+                                Raised: ₦{totalContributed.toLocaleString()} of {gift.price}
+                              </span>
+                              <span>
+                                {Math.min(
+                                  100,
+                                  Math.round((totalContributed / gift.targetAmount) * 100)
+                                )}
+                                %
+                              </span>
+                            </div>
+                            <div className="w-full h-1.5 rounded-full bg-brown-deep/10 overflow-hidden">
+                              <div
+                                className="h-full bg-emerald-600"
+                                style={{
+                                  width: `${Math.min(
+                                    100,
+                                    (totalContributed / gift.targetAmount) * 100
+                                  )}%`,
+                                }}
+                              />
+                            </div>
+                          </div>
+
                           {/* Claim Status */}
-                          {claim ? (
+                          {claim && (
                             <div className="p-3 bg-white border border-emerald-600/20 rounded-lg space-y-1 mb-4">
-                              <div className="flex items-center justify-between">
-                                <span className="font-body text-[0.65rem] tracking-wider uppercase text-emerald-800 font-semibold">
-                                  ✓ Claimed by {claim.claimed_by}
-                                </span>
-                                <span className="font-body text-[0.62rem] text-ink/40">
-                                  {new Date(claim.claimed_at).toLocaleDateString("en-US", {
-                                    month: "short",
-                                    day: "numeric",
-                                  })}
-                                </span>
-                              </div>
+                              <span className="font-body text-[0.65rem] tracking-wider uppercase text-emerald-800 font-semibold block">
+                                ✓ Claimed by {claim.claimed_by}
+                              </span>
                               {claim.note && (
                                 <p className="font-body text-xs text-ink/75 italic">
                                   &ldquo;{claim.note}&rdquo;
                                 </p>
                               )}
                             </div>
-                          ) : (
-                            <div className="p-3 bg-cream-light/60 border border-brown-deep/10 rounded-lg mb-4">
-                              <span className="font-body text-xs text-ink/60 italic">
-                                Available &middot; No one has claimed this gift yet.
-                              </span>
-                            </div>
                           )}
                         </div>
 
                         {/* Footer action */}
                         <div className="flex items-center justify-between pt-3 border-t border-brown-deep/8 gap-2">
-                          <a
-                            href={gift.url}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="font-body text-[0.68rem] tracking-wider uppercase text-gold-accent hover:text-brown-deep transition-colors"
-                          >
-                            View on Jumia &rarr;
-                          </a>
+                          {gift.url && gift.url !== "#" && !gift.url.startsWith("/gifts") ? (
+                            <a
+                              href={gift.url}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="font-body text-[0.68rem] tracking-wider uppercase text-gold-accent hover:text-brown-deep transition-colors"
+                            >
+                              View Retailer &rarr;
+                            </a>
+                          ) : (
+                            <span className="font-body text-[0.65rem] tracking-wider uppercase text-ink/40">
+                              {gift.category}
+                            </span>
+                          )}
 
                           {claim && (
                             <button
@@ -585,6 +690,89 @@ export default function AdminPage() {
                     );
                   })}
                 </div>
+              </div>
+            )}
+
+            {/* TAB 3: MESSAGE WALL */}
+            {mainTab === "messages" && (
+              <div>
+                <div className="bg-white border border-brown-deep/12 rounded-xl p-5 mb-6">
+                  <h2 className="font-display italic text-2xl text-brown-deep mb-1">
+                    Message Wall Prayers &amp; Blessings
+                  </h2>
+                  <p className="font-body text-xs text-ink/65">
+                    Manage scriptures, prayers, and words of wisdom posted by guests.
+                  </p>
+                </div>
+
+                {messages.length === 0 ? (
+                  <div className="bg-white border border-brown-deep/12 rounded-xl p-12 text-center">
+                    <p className="font-display italic text-xl text-brown-deep">
+                      No wall messages yet.
+                    </p>
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+                    {messages.map((msg) => (
+                      <div
+                        key={msg.id}
+                        className={`bg-white border rounded-xl p-5 shadow-xs flex flex-col justify-between ${
+                          msg.is_approved ? "border-brown-deep/15" : "border-amber-300 bg-amber-50/20"
+                        }`}
+                      >
+                        <div>
+                          <div className="flex items-center justify-between pb-2 border-b border-brown-deep/8 mb-2">
+                            <span className="text-[0.62rem] tracking-wider uppercase font-semibold text-gold-accent">
+                              {msg.category}
+                            </span>
+                            <span className="text-[0.62rem] text-ink/40">
+                              {new Date(msg.created_at).toLocaleDateString("en-US", {
+                                month: "short",
+                                day: "numeric",
+                              })}
+                            </span>
+                          </div>
+
+                          {msg.bible_reference && (
+                            <p className="font-display italic text-sm text-gold-accent font-semibold mb-1">
+                              &ldquo;{msg.bible_reference}&rdquo;
+                            </p>
+                          )}
+
+                          <p className="font-body text-xs text-ink/80 italic mb-3 leading-relaxed">
+                            &ldquo;{msg.message}&rdquo;
+                          </p>
+
+                          <p className="font-display italic text-brown-deep font-semibold text-sm">
+                            — {msg.sender_name}
+                          </p>
+                        </div>
+
+                        <div className="pt-3 border-t border-brown-deep/8 flex items-center justify-between gap-2 mt-4">
+                          <button
+                            type="button"
+                            onClick={() => toggleMessageApproval(msg.id, msg.is_approved)}
+                            className={`text-xs px-3 py-1 rounded font-body uppercase tracking-wider font-semibold cursor-pointer ${
+                              msg.is_approved
+                                ? "bg-stone-100 text-ink/60 hover:bg-stone-200"
+                                : "bg-emerald-700 text-white hover:bg-emerald-800"
+                            }`}
+                          >
+                            {msg.is_approved ? "Hide" : "Approve"}
+                          </button>
+
+                          <button
+                            type="button"
+                            onClick={() => deleteMessage(msg.id)}
+                            className="text-xs text-red-600 border border-red-200 px-3 py-1 rounded hover:bg-red-50 uppercase tracking-wider font-semibold cursor-pointer"
+                          >
+                            Delete
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
             )}
           </div>
