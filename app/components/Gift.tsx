@@ -240,7 +240,7 @@ export default function Gift() {
                   href="/messages"
                   className="w-full text-center py-2.5 px-4 rounded-xl bg-white hover:bg-cream-light text-brown-deep border border-brown-deep/20 font-body text-xs tracking-[0.14em] uppercase font-semibold transition-all shadow-2xs"
                 >
-                  🕊️ Message Wall &rarr;
+                  Message Wall &rarr;
                 </Link>
               </div>
 

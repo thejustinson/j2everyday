@@ -113,16 +113,14 @@ export default function GuestbookPage() {
           <div className="flex items-center gap-2 sm:gap-3">
             <Link
               href="/gifts"
-              className="font-body text-xs tracking-[0.16em] uppercase font-semibold text-brown-deep border border-brown-deep/20 hover:border-gold-accent hover:text-gold-accent px-3 py-1.5 rounded-full transition-colors hidden sm:inline-flex items-center gap-1"
+              className="font-body text-xs tracking-[0.16em] uppercase font-semibold text-brown-deep border border-brown-deep/20 hover:border-gold-accent hover:text-gold-accent px-3 py-1.5 rounded-full transition-colors hidden sm:inline-flex items-center"
             >
-              <span>🎁</span>
               <span>Registry</span>
             </Link>
             <Link
               href="/messages"
-              className="font-body text-xs tracking-[0.16em] uppercase font-semibold text-brown-deep border border-brown-deep/20 hover:border-gold-accent hover:text-gold-accent px-3 py-1.5 rounded-full transition-colors hidden sm:inline-flex items-center gap-1"
+              className="font-body text-xs tracking-[0.16em] uppercase font-semibold text-brown-deep border border-brown-deep/20 hover:border-gold-accent hover:text-gold-accent px-3 py-1.5 rounded-full transition-colors hidden sm:inline-flex items-center"
             >
-              <span>🕊️</span>
               <span>Wall</span>
             </Link>
             <Link

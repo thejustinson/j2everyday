@@ -93,7 +93,6 @@ export const GIFT_CATEGORIES = [
   "Home Appliances",
   "Furniture & Home Décor",
   "Travel & Honeymoon",
-  "Experiences",
   "Cash Gifts",
 ] as const;
 
@@ -272,28 +271,6 @@ export const GIFTS: GiftItemConfig[] = [
     url: "/gifts#cash",
     image: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1200&q=80",
     badge: "Crowdfund",
-  },
-
-  // Experiences
-  {
-    id: "couples-spa",
-    title: "Couple's Spa & Wellness Day",
-    category: "Experiences",
-    price: "₦120,000",
-    targetAmount: 120000,
-    description: "A restorative day of couples massage and relaxation post-celebration.",
-    url: "/gifts#cash",
-    image: "https://images.unsplash.com/photo-1540555700478-4be289fbecef?auto=format&fit=crop&w=1200&q=80",
-  },
-  {
-    id: "sunset-dinner",
-    title: "Romantic Sunset Candlelit Dinner",
-    category: "Experiences",
-    price: "₦60,000",
-    targetAmount: 60000,
-    description: "An intimate dinner for two overlooking the horizon.",
-    url: "/gifts#cash",
-    image: "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&w=1200&q=80",
   },
 ];
 

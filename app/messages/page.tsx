@@ -16,11 +16,11 @@ interface WallMessage {
 }
 
 const CATEGORY_TABS = [
-  { id: "all", label: "All Blessings", icon: "✨" },
-  { id: "prayer", label: "Prayers", icon: "🕊️" },
-  { id: "bible_verse", label: "Bible Verses", icon: "📖" },
-  { id: "love_note", label: "Words of Wisdom", icon: "💌" },
-  { id: "congratulations", label: "Congratulations", icon: "🎉" },
+  { id: "all", label: "All Blessings" },
+  { id: "prayer", label: "Prayers" },
+  { id: "bible_verse", label: "Bible Verses" },
+  { id: "love_note", label: "Words of Wisdom" },
+  { id: "congratulations", label: "Congratulations" },
 ];
 
 export default function MessageWallPage() {
@@ -113,13 +113,13 @@ export default function MessageWallPage() {
   const getCategoryBadge = (cat: string) => {
     switch (cat.toLowerCase()) {
       case "prayer":
-        return { label: "Prayer", icon: "🕊️", bg: "bg-amber-50 text-amber-900 border-amber-200/60" };
+        return { label: "Prayer", bg: "bg-amber-50 text-amber-900 border-amber-200/60" };
       case "bible_verse":
-        return { label: "Scripture", icon: "📖", bg: "bg-stone-100 text-stone-800 border-stone-300/70" };
+        return { label: "Scripture", bg: "bg-stone-100 text-stone-800 border-stone-300/70" };
       case "love_note":
-        return { label: "Wisdom", icon: "💌", bg: "bg-rose-50 text-rose-900 border-rose-200/60" };
+        return { label: "Wisdom", bg: "bg-rose-50 text-rose-900 border-rose-200/60" };
       default:
-        return { label: "Blessing", icon: "🎉", bg: "bg-cream-light text-brown-deep border-brown-deep/20" };
+        return { label: "Blessing", bg: "bg-cream-light text-brown-deep border-brown-deep/20" };
     }
   };
 
@@ -197,7 +197,6 @@ export default function MessageWallPage() {
                   }
                 `}
               >
-                <span>{tab.icon}</span>
                 <span>{tab.label}</span>
                 <span
                   className={`text-[0.65rem] ${
@@ -224,8 +223,8 @@ export default function MessageWallPage() {
         {/* Empty State */}
         {!isLoading && filteredMessages.length === 0 && (
           <div className="bg-white border border-brown-deep/12 rounded-2xl p-12 text-center max-w-md mx-auto my-8 shadow-xs">
-            <div className="w-16 h-16 rounded-full bg-cream-light border border-brown-deep/15 flex items-center justify-center mx-auto mb-4 text-brown-deep text-2xl">
-              🕊️
+            <div className="w-16 h-16 rounded-full bg-cream-light border border-brown-deep/15 flex items-center justify-center mx-auto mb-4 text-gold-accent font-script text-3xl select-none">
+              &hearts;
             </div>
             <h2 className="font-display italic text-2xl text-brown-deep mb-2">
               Be the first to bless the couple
@@ -264,7 +263,6 @@ export default function MessageWallPage() {
                     <span
                       className={`inline-flex items-center gap-1 text-[0.62rem] tracking-wider uppercase font-semibold px-2.5 py-0.5 rounded-full border ${badge.bg}`}
                     >
-                      <span>{badge.icon}</span>
                       <span>{badge.label}</span>
                     </span>
 
@@ -352,7 +350,7 @@ export default function MessageWallPage() {
               {postSuccess ? (
                 <div className="text-center py-8">
                   <div className="w-14 h-14 bg-amber-50 text-amber-800 rounded-full flex items-center justify-center mx-auto mb-3 text-2xl border border-amber-200">
-                    🕊️
+                    ✓
                   </div>
                   <h4 className="font-display italic text-2xl text-brown-deep mb-1">
                     Amen! Thank You.
@@ -370,10 +368,10 @@ export default function MessageWallPage() {
                     </label>
                     <div className="grid grid-cols-2 gap-2">
                       {[
-                        { id: "prayer", label: "🕊️ Prayer" },
-                        { id: "bible_verse", label: "📖 Scripture" },
-                        { id: "love_note", label: "💌 Wisdom" },
-                        { id: "congratulations", label: "🎉 Congrats" },
+                        { id: "prayer", label: "Prayer" },
+                        { id: "bible_verse", label: "Scripture" },
+                        { id: "love_note", label: "Wisdom" },
+                        { id: "congratulations", label: "Congrats" },
                       ].map((item) => (
                         <button
                           key={item.id}

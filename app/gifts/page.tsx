@@ -207,10 +207,9 @@ export default function GiftsRegistryPage() {
 
           <Link
             href="/messages"
-            className="font-body text-xs tracking-[0.18em] uppercase font-semibold text-brown-deep border border-brown-deep/30 hover:border-gold-accent hover:text-gold-accent px-3.5 py-1.5 rounded-full transition-colors flex items-center gap-1.5"
+            className="font-body text-xs tracking-[0.18em] uppercase font-semibold text-brown-deep border border-brown-deep/30 hover:border-gold-accent hover:text-gold-accent px-3.5 py-1.5 rounded-full transition-colors"
           >
-            <span>🕊️</span>
-            <span>Message Wall</span>
+            Message Wall
           </Link>
         </div>
 
@@ -224,6 +223,9 @@ export default function GiftsRegistryPage() {
           </h1>
           <p className="font-body text-ink/75 text-sm sm:text-base max-w-xl mx-auto leading-relaxed">
             Your love and prayers are the greatest blessing to our union. If you would like to contribute towards our new home, honeymoon, or life experiences, explore our registry below. You can contribute any amount towards any item!
+          </p>
+          <p className="font-body text-xs text-ink/50 italic text-center max-w-md mx-auto mt-3">
+            Kindly note: we are not yet expecting, so please no baby gifts — your love and presence are more than enough!
           </p>
         </FadeIn>
 
@@ -572,9 +574,6 @@ export default function GiftsRegistryPage() {
                     </div>
 
                     <div className="relative">
-                      <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-brown-deep font-semibold">
-                        ₦
-                      </span>
                       <input
                         type="number"
                         required

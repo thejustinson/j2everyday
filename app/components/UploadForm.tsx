@@ -214,24 +214,24 @@ export default function UploadForm() {
         <div className="flex items-center gap-2 sm:gap-3">
           <Link
             href="/gifts"
-            className="font-body text-[0.68rem] sm:text-xs tracking-[0.16em] uppercase font-semibold text-brown-deep border border-brown-deep/20 hover:border-gold-accent hover:text-gold-accent px-2.5 sm:px-3 py-1.5 rounded-full transition-colors flex items-center gap-1"
+            className="font-body text-[0.68rem] sm:text-xs tracking-[0.16em] uppercase font-semibold text-brown-deep border border-brown-deep/20 hover:border-gold-accent hover:text-gold-accent px-2.5 sm:px-3 py-1.5 rounded-full transition-colors"
           >
-            <span>🎁</span>
             <span className="hidden sm:inline">Registry</span>
+            <span className="sm:hidden">Registry</span>
           </Link>
           <Link
             href="/messages"
-            className="font-body text-[0.68rem] sm:text-xs tracking-[0.16em] uppercase font-semibold text-brown-deep border border-brown-deep/20 hover:border-gold-accent hover:text-gold-accent px-2.5 sm:px-3 py-1.5 rounded-full transition-colors flex items-center gap-1"
+            className="font-body text-[0.68rem] sm:text-xs tracking-[0.16em] uppercase font-semibold text-brown-deep border border-brown-deep/20 hover:border-gold-accent hover:text-gold-accent px-2.5 sm:px-3 py-1.5 rounded-full transition-colors"
           >
-            <span>🕊️</span>
             <span className="hidden sm:inline">Wall</span>
+            <span className="sm:hidden">Wall</span>
           </Link>
           <Link
             href="/guestbook"
-            className="font-body text-[0.68rem] sm:text-xs tracking-[0.16em] uppercase font-semibold text-brown-deep border border-brown-deep/20 hover:border-gold-accent hover:text-gold-accent px-2.5 sm:px-3 py-1.5 rounded-full transition-colors flex items-center gap-1"
+            className="font-body text-[0.68rem] sm:text-xs tracking-[0.16em] uppercase font-semibold text-brown-deep border border-brown-deep/20 hover:border-gold-accent hover:text-gold-accent px-2.5 sm:px-3 py-1.5 rounded-full transition-colors"
           >
-            <span>📖</span>
             <span className="hidden sm:inline">Album</span>
+            <span className="sm:hidden">Album</span>
           </Link>
           <span className="font-body text-[0.68rem] tracking-[0.25em] uppercase text-ink/40 hidden md:inline">
             #j2everyday
