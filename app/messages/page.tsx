@@ -144,19 +144,6 @@ export default function MessageWallPage() {
               Jesulayomi &amp; Justin
             </span>
           </div>
-
-          <button
-            type="button"
-            onClick={() => {
-              setIsModalOpen(true);
-              setFormError("");
-              setPostSuccess(false);
-            }}
-            className="font-body text-xs tracking-[0.18em] uppercase font-semibold text-cream-light bg-brown-deep hover:bg-brown-deep/90 px-4 py-2 rounded-full transition-colors shadow-xs cursor-pointer flex items-center gap-1.5"
-          >
-            <span>+</span>
-            <span>Add Prayer / Blessing</span>
-          </button>
         </div>
 
         {/* Page Hero Title */}
