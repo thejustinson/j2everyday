@@ -321,9 +321,9 @@ export default function GiftsRegistryPage() {
           </div>
         )}
 
-        {/* ── Wishlist Gift Cards Grid ── */}
+        {/* ── Wishlist Gift List ── */}
         {activeCategory !== "Cash Gifts" && (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
+          <div className="divide-y divide-brown-deep/8">
             {filteredGifts.map((gift) => {
               const contributionData = contributionsMap[gift.id];
               const isClaimed = Boolean(claimsMap[gift.id]);
@@ -342,152 +342,138 @@ export default function GiftsRegistryPage() {
               const contributorCount = contributionData?.items?.length || (isClaimed ? 1 : 0);
 
               return (
-                <motion.div
-                  key={gift.id}
-                  whileHover={{ y: -4 }}
-                  transition={{ type: "spring", stiffness: 280, damping: 20 }}
-                  className="bg-white border border-brown-deep/12 rounded-2xl overflow-hidden shadow-sm flex flex-col group"
-                >
-                  {/* Product Image Box */}
-                  <div className="relative aspect-[4/3] w-full bg-stone-100 overflow-hidden flex items-center justify-center">
+                <div key={gift.id} className="py-6 flex gap-5 sm:gap-7 items-start">
+                  {/* Thumbnail */}
+                  <div className="relative flex-shrink-0 w-20 h-20 sm:w-24 sm:h-24 rounded-xl overflow-hidden bg-stone-100">
                     <img
                       src={gift.image}
                       alt={gift.title}
                       loading="lazy"
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                      className="w-full h-full object-cover"
                     />
-
-                    {/* Category Pill Tag */}
-                    <span className="absolute top-3 left-3 bg-cream-light/95 backdrop-blur-xs text-brown-deep border border-brown-deep/15 text-[0.62rem] tracking-wider uppercase font-medium px-2.5 py-1 rounded-full shadow-2xs">
-                      {gift.category}
-                    </span>
-
-                    {/* Sale / Crowdfund / Funded Badge */}
-                    {isFullyFunded ? (
-                      <span className="absolute top-3 right-3 bg-emerald-700 text-white text-[0.65rem] tracking-wider uppercase font-semibold px-2.5 py-1 rounded-full shadow-sm flex items-center gap-1">
-                        <span>✓</span>
-                        <span>Fully Funded</span>
-                      </span>
-                    ) : gift.badge ? (
-                      <span className="absolute top-3 right-3 bg-brown-deep text-cream-light text-[0.62rem] tracking-wider uppercase font-semibold px-2 py-0.5 rounded-full shadow-xs">
-                        {gift.badge}
-                      </span>
-                    ) : null}
+                    {isFullyFunded && (
+                      <div className="absolute inset-0 bg-emerald-700/80 flex items-center justify-center">
+                        <span className="text-white text-base font-semibold">✓</span>
+                      </div>
+                    )}
                   </div>
 
-                  {/* Gift Info */}
-                  <div className="p-5 flex-1 flex flex-col justify-between">
-                    <div>
-                      {/* Title & Retailer link */}
-                      <div className="flex items-start justify-between gap-2 mb-1.5">
-                        <h3 className="font-display font-medium text-lg text-brown-deep leading-snug">
+                  {/* Content */}
+                  <div className="flex-1 min-w-0">
+                    {/* Title row */}
+                    <div className="flex items-start justify-between gap-3 mb-0.5">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <h3 className="font-display font-medium text-base sm:text-lg text-brown-deep leading-snug">
                           {gift.title}
                         </h3>
-                        {gift.url && gift.url !== "#" && !gift.url.startsWith("/gifts") && (
-                          <a
-                            href={gift.url}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="font-body text-[0.65rem] tracking-wider uppercase text-gold-accent hover:text-brown-deep transition-colors whitespace-nowrap pt-1 flex items-center gap-0.5"
-                            title="View product online"
-                          >
-                            <span>View</span>
-                            <span>↗</span>
-                          </a>
+                        {gift.badge && !isFullyFunded && (
+                          <span className="font-body text-[0.6rem] tracking-wider uppercase font-semibold px-2 py-0.5 rounded-full bg-brown-deep/8 text-brown-deep border border-brown-deep/12">
+                            {gift.badge}
+                          </span>
+                        )}
+                        {isFullyFunded && (
+                          <span className="font-body text-[0.6rem] tracking-wider uppercase font-semibold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-600/25">
+                            Fully Funded
+                          </span>
                         )}
                       </div>
-
-                      <p className="font-body text-xs text-ink/70 leading-relaxed mb-4">
-                        {gift.description}
-                      </p>
+                      <span className="font-display font-semibold text-base sm:text-lg text-brown-deep tabular-nums flex-shrink-0">
+                        {gift.price}
+                      </span>
                     </div>
 
-                    {/* Pricing & Progress Bar */}
-                    <div className="pt-3 border-t border-brown-deep/8">
-                      <div className="flex items-baseline justify-between mb-1.5">
-                        <span className="font-display font-semibold text-xl text-brown-deep tabular-nums">
-                          {gift.price}
-                        </span>
-                        <span className="font-body text-xs text-ink/60 tabular-nums">
-                          {isFullyFunded
-                            ? "100% funded"
-                            : `₦${totalRaised.toLocaleString()} raised (${percent}%)`}
-                        </span>
-                      </div>
-
-                      {/* Progress Bar */}
-                      <div className="w-full h-2 rounded-full bg-brown-deep/10 overflow-hidden mb-3">
-                        <div
-                          className={`h-full transition-all duration-700 ${
-                            isFullyFunded ? "bg-emerald-600" : "bg-gold-accent"
-                          }`}
-                          style={{ width: `${percent}%` }}
-                        />
-                      </div>
-
-                      {/* Remaining / Contributor note preview */}
-                      <div className="flex items-center justify-between text-[0.68rem] font-body text-ink/50 mb-4">
-                        <span>
-                          {isFullyFunded
-                            ? "Goal achieved!"
-                            : `₦${remainingAmount.toLocaleString()} needed`}
-                        </span>
-                        {contributorCount > 0 && (
-                          <button
-                            type="button"
-                            onClick={() =>
-                              setShowNotesForGiftId((curr) =>
-                                curr === gift.id ? null : gift.id
-                              )
-                            }
-                            className="text-gold-accent hover:text-brown-deep underline cursor-pointer"
-                          >
-                            {contributorCount}{" "}
-                            {contributorCount === 1 ? "contribution" : "contributions"}
-                          </button>
-                        )}
-                      </div>
-
-                      {/* Contributor Notes Accordion */}
-                      {showNotesForGiftId === gift.id && contributionData?.items && (
-                        <div className="mb-4 p-3 bg-cream-light/80 rounded-lg text-xs space-y-2 border border-brown-deep/10 max-h-36 overflow-y-auto">
-                          <p className="font-body text-[0.62rem] uppercase tracking-wider text-brown-deep font-semibold">
-                            Blessings for this gift:
-                          </p>
-                          {contributionData.items.map((item, idx) => (
-                            <div key={idx} className="pb-1 border-b border-brown-deep/5 last:border-0">
-                              <p className="font-medium text-brown-deep">
-                                {item.contributor_name}{" "}
-                                <span className="text-gold-accent font-normal tabular-nums">
-                                  (₦{item.amount.toLocaleString()})
-                                </span>
-                              </p>
-                              {item.note && (
-                                <p className="italic text-ink/75 text-[0.7rem]">&ldquo;{item.note}&rdquo;</p>
-                              )}
-                            </div>
-                          ))}
-                        </div>
+                    {/* Category + View link */}
+                    <div className="flex items-center gap-3 mb-2">
+                      <span className="font-body text-[0.62rem] tracking-wider uppercase text-ink/40">
+                        {gift.category}
+                      </span>
+                      {gift.url && gift.url !== "#" && !gift.url.startsWith("/gifts") && (
+                        <a
+                          href={gift.url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="font-body text-[0.62rem] tracking-wider uppercase text-gold-accent hover:text-brown-deep transition-colors flex items-center gap-0.5"
+                        >
+                          View ↗
+                        </a>
                       )}
+                    </div>
 
-                      {/* Action Button */}
-                      {!isFullyFunded ? (
+                    <p className="font-body text-xs text-ink/60 leading-relaxed mb-3">
+                      {gift.description}
+                    </p>
+
+                    {/* Progress bar */}
+                    <div className="w-full h-1.5 rounded-full bg-brown-deep/10 overflow-hidden mb-1.5">
+                      <div
+                        className={`h-full transition-all duration-700 ${
+                          isFullyFunded ? "bg-emerald-600" : "bg-gold-accent"
+                        }`}
+                        style={{ width: `${percent}%` }}
+                      />
+                    </div>
+
+                    {/* Stats row */}
+                    <div className="flex items-center justify-between text-[0.68rem] font-body text-ink/45 mb-3">
+                      <span>
+                        {isFullyFunded
+                          ? "Goal achieved!"
+                          : `₦${totalRaised.toLocaleString()} raised · ₦${remainingAmount.toLocaleString()} to go`}
+                      </span>
+                      {contributorCount > 0 && (
                         <button
                           type="button"
-                          onClick={() => handleOpenContributeModal(gift)}
-                          className="w-full py-2.5 px-4 rounded-xl bg-brown-deep hover:bg-brown-deep/90 text-cream-light font-body text-xs tracking-[0.16em] uppercase font-semibold transition-all shadow-xs cursor-pointer flex items-center justify-center gap-1.5 active:scale-98"
+                          onClick={() =>
+                            setShowNotesForGiftId((curr) =>
+                              curr === gift.id ? null : gift.id
+                            )
+                          }
+                          className="text-gold-accent hover:text-brown-deep underline cursor-pointer"
                         >
-                          <span>Contribute Towards Gift</span>
-                          <span>&rarr;</span>
+                          {contributorCount}{" "}
+                          {contributorCount === 1 ? "contribution" : "contributions"}
                         </button>
-                      ) : (
-                        <div className="w-full py-2.5 px-4 rounded-xl bg-emerald-50 border border-emerald-600/30 text-emerald-800 text-center font-body text-xs tracking-[0.14em] uppercase font-semibold">
-                          ✓ Completed &amp; Funded
-                        </div>
                       )}
                     </div>
+
+                    {/* Contributor Notes Accordion */}
+                    {showNotesForGiftId === gift.id && contributionData?.items && (
+                      <div className="mb-3 p-3 bg-cream-light/80 rounded-lg text-xs space-y-2 border border-brown-deep/10 max-h-36 overflow-y-auto">
+                        <p className="font-body text-[0.62rem] uppercase tracking-wider text-brown-deep font-semibold">
+                          Blessings for this gift:
+                        </p>
+                        {contributionData.items.map((item, idx) => (
+                          <div key={idx} className="pb-1 border-b border-brown-deep/5 last:border-0">
+                            <p className="font-medium text-brown-deep">
+                              {item.contributor_name}{" "}
+                              <span className="text-gold-accent font-normal tabular-nums">
+                                (₦{item.amount.toLocaleString()})
+                              </span>
+                            </p>
+                            {item.note && (
+                              <p className="italic text-ink/75 text-[0.7rem]">&ldquo;{item.note}&rdquo;</p>
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                    )}
+
+                    {/* Action */}
+                    {!isFullyFunded ? (
+                      <button
+                        type="button"
+                        onClick={() => handleOpenContributeModal(gift)}
+                        className="font-body text-xs tracking-[0.16em] uppercase font-semibold text-brown-deep border border-brown-deep/25 hover:border-gold-accent hover:text-gold-accent px-4 py-1.5 rounded-full transition-colors cursor-pointer"
+                      >
+                        Contribute &rarr;
+                      </button>
+                    ) : (
+                      <span className="font-body text-xs tracking-[0.14em] uppercase font-semibold text-emerald-700">
+                        ✓ Fully Funded
+                      </span>
+                    )}
                   </div>
-                </motion.div>
+                </div>
               );
             })}
           </div>
@@ -556,22 +542,42 @@ export default function GiftsRegistryPage() {
                     </label>
 
                     {/* Quick Preset Buttons */}
-                    <div className="grid grid-cols-3 gap-2 mb-2">
-                      {[10000, 25000, 50000].map((amt) => (
-                        <button
-                          key={amt}
-                          type="button"
-                          onClick={() => setContributionAmount(amt.toString())}
-                          className={`py-1.5 px-2 text-xs font-body rounded-lg border transition-colors cursor-pointer ${
-                            contributionAmount === amt.toString()
-                              ? "bg-brown-deep text-cream-light border-brown-deep font-semibold"
-                              : "bg-cream-light/60 border-brown-deep/15 text-brown-deep hover:border-gold-accent"
-                          }`}
-                        >
-                          ₦{amt.toLocaleString()}
-                        </button>
-                      ))}
-                    </div>
+                    {(() => {
+                      const contribData = contributionsMap[selectedGift.id];
+                      const totalSoFar = contribData ? contribData.total : 0;
+                      const remaining = Math.max(0, selectedGift.targetAmount - totalSoFar);
+                      return (
+                        <div className="grid grid-cols-4 gap-2 mb-2">
+                          {[10000, 25000, 50000].map((amt) => (
+                            <button
+                              key={amt}
+                              type="button"
+                              onClick={() => setContributionAmount(amt.toString())}
+                              className={`py-1.5 px-2 text-xs font-body rounded-lg border transition-colors cursor-pointer ${
+                                contributionAmount === amt.toString()
+                                  ? "bg-brown-deep text-cream-light border-brown-deep font-semibold"
+                                  : "bg-cream-light/60 border-brown-deep/15 text-brown-deep hover:border-gold-accent"
+                              }`}
+                            >
+                              ₦{amt.toLocaleString()}
+                            </button>
+                          ))}
+                          {remaining > 0 && (
+                            <button
+                              type="button"
+                              onClick={() => setContributionAmount(remaining.toString())}
+                              className={`py-1.5 px-2 text-xs font-body rounded-lg border transition-colors cursor-pointer ${
+                                contributionAmount === remaining.toString()
+                                  ? "bg-gold-accent text-white border-gold-accent font-semibold"
+                                  : "bg-gold-accent/10 border-gold-accent/40 text-brown-deep hover:border-gold-accent"
+                              }`}
+                            >
+                              Pay Full
+                            </button>
+                          )}
+                        </div>
+                      );
+                    })()}
 
                     <div className="relative">
                       <input
